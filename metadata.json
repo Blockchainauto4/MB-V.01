@@ -1,0 +1,7 @@
+{
+  "name": "MB V.01",
+  "description": "A professional hair color consultation and swatchbook app powered by Beatriz Bittencourt Professional and Gemini AI.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
