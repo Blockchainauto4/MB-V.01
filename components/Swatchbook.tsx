@@ -20,17 +20,63 @@ const SWATCHES: Swatch[] = [
   { id: '12', code: '4.20', name: 'Violine', color: '#3d2636', family: 'Violet' },
 ];
 
+const TEXTS: Record<Language, {
+  title: string;
+  subtitle: string;
+  exploreBtn: string;
+  tryOn: string;
+}> = {
+  en: {
+    title: "Swatchbook.",
+    subtitle: "Find the perfect shade among all franchises.",
+    exploreBtn: "Explore Shades",
+    tryOn: "Virtual Try-On"
+  },
+  pt: {
+    title: "Catálogo de Cores.",
+    subtitle: "Encontre o tom perfeito entre todas as franquias.",
+    exploreBtn: "Explorar Tons",
+    tryOn: "Provador Virtual"
+  },
+  es: {
+    title: "Muestrario.",
+    subtitle: "Encuentra el tono perfecto entre todas las franquicias.",
+    exploreBtn: "Explorar Tonos",
+    tryOn: "Pruébatelo"
+  },
+  de: {
+    title: "Farbmusterbuch.",
+    subtitle: "Finden Sie den perfekten Farbton.",
+    exploreBtn: "Farbtöne Entdecken",
+    tryOn: "Virtuelle Anprobe"
+  },
+  fr: {
+    title: "Nuancier.",
+    subtitle: "Trouvez la nuance parfaite parmi toutes les franchises.",
+    exploreBtn: "Explorer les Nuances",
+    tryOn: "Essai Virtuel"
+  },
+  it: {
+    title: "Campionario.",
+    subtitle: "Trova la tonalità perfetta tra tutte le serie.",
+    exploreBtn: "Esplora Tonalità",
+    tryOn: "Prova Virtuale"
+  }
+};
+
 export const Swatchbook: React.FC<SwatchbookProps> = ({ language }) => {
+  const t = TEXTS[language];
+
   return (
     <div className="pb-24 pt-8 px-4 animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Swatchbook.</h1>
-        <p className="text-gray-400 text-lg">Find the perfect shade among all franchises.</p>
+        <h1 className="text-4xl font-bold mb-2">{t.title}</h1>
+        <p className="text-gray-400 text-lg">{t.subtitle}</p>
       </div>
 
       <div className="relative mb-12">
         <button className="bg-white text-black font-bold uppercase py-4 px-8 text-sm tracking-wider hover:bg-gray-200 transition-colors">
-          Explore Shades
+          {t.exploreBtn}
         </button>
       </div>
 
@@ -47,7 +93,7 @@ export const Swatchbook: React.FC<SwatchbookProps> = ({ language }) => {
           </div>
         ))}
 
-        {/* Floating Virtual Try On Badge from Screenshot */}
+        {/* Floating Virtual Try On Badge */}
         <div className="absolute right-4 bottom-10 md:right-10 md:bottom-20 z-10">
           <div className="relative w-32 h-32 animate-spin-slow">
             <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -57,7 +103,7 @@ export const Swatchbook: React.FC<SwatchbookProps> = ({ language }) => {
               <circle cx="50" cy="50" r="38" fill="white" />
               <text fontSize="11" fontWeight="bold" letterSpacing="2">
                 <textPath href="#circlePath" className="uppercase fill-black">
-                  • Virtual Try-On • Virtual Try-On
+                  • {t.tryOn} • {t.tryOn}
                 </textPath>
               </text>
             </svg>

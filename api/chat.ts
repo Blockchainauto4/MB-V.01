@@ -68,11 +68,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Clean base64 string
       const cleanBase64 = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, "");
       
-      // Multimodal message
-      result = await chatSession.sendMessage([
-        { text: message || "Analyze this image." },
-        { inlineData: { mimeType: 'image/jpeg', data: cleanBase64 } }
-      ]);
+      // Multimodal message - Must be wrapped in { message: ... }
+      result = await chatSession.sendMessage({
+        message: [
+          { text: message || "Analyze this image." },
+          { inlineData: { mimeType: 'image/jpeg', data: cleanBase64 } }
+        ]
+      });
     } else {
       // Text-only message
       result = await chatSession.sendMessage({ message });

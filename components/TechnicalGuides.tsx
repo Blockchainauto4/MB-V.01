@@ -13,13 +13,93 @@ const GUIDES = [
   { id: '5', title: 'Blond studio', color: 'border-teal-400' },
 ];
 
+const TEXTS: Record<Language, {
+  title: string;
+  neonTitle: string;
+  neonDesc: string;
+  testBtn: string;
+  checking: string;
+  missingTitle: string;
+  missingDesc: string;
+  buyBtn: string;
+  whatsapp: string;
+}> = {
+  en: {
+    title: "Technical guides.",
+    neonTitle: "Neon Database Integration",
+    neonDesc: "Test the connection to the serverless Postgres database deployed on Vercel.",
+    testBtn: "Test Connection",
+    checking: "Checking...",
+    missingTitle: "Missing products?",
+    missingDesc: "Find them all.",
+    buyBtn: "Buy Online",
+    whatsapp: "Order via WhatsApp: (11) 99227-9655"
+  },
+  pt: {
+    title: "Guias Técnicos.",
+    neonTitle: "Integração Neon Database",
+    neonDesc: "Teste a conexão com o banco de dados Postgres serverless.",
+    testBtn: "Testar Conexão",
+    checking: "Verificando...",
+    missingTitle: "Produtos faltando?",
+    missingDesc: "Encontre todos eles.",
+    buyBtn: "Comprar Online",
+    whatsapp: "Peça via WhatsApp: (11) 99227-9655"
+  },
+  es: {
+    title: "Guías Técnicas.",
+    neonTitle: "Integración Neon Database",
+    neonDesc: "Prueba la conexión a la base de datos Postgres sin servidor.",
+    testBtn: "Probar Conexión",
+    checking: "Comprobando...",
+    missingTitle: "¿Faltan productos?",
+    missingDesc: "Encuéntralos todos.",
+    buyBtn: "Comprar en Línea",
+    whatsapp: "Pedir por WhatsApp: (11) 99227-9655"
+  },
+  de: {
+    title: "Technische Anleitungen.",
+    neonTitle: "Neon Datenbank Integration",
+    neonDesc: "Testen Sie die Verbindung zur serverlosen Postgres-Datenbank.",
+    testBtn: "Verbindung Testen",
+    checking: "Prüfung...",
+    missingTitle: "Fehlende Produkte?",
+    missingDesc: "Finden Sie alle.",
+    buyBtn: "Online Kaufen",
+    whatsapp: "Bestellung per WhatsApp: (11) 99227-9655"
+  },
+  fr: {
+    title: "Guides Techniques.",
+    neonTitle: "Intégration Base de Données Neon",
+    neonDesc: "Testez la connexion à la base de données Postgres sans serveur.",
+    testBtn: "Tester la Connexion",
+    checking: "Vérification...",
+    missingTitle: "Produits manquants?",
+    missingDesc: "Retrouvez-les tous.",
+    buyBtn: "Acheter en Ligne",
+    whatsapp: "Commander via WhatsApp: (11) 99227-9655"
+  },
+  it: {
+    title: "Guide Tecniche.",
+    neonTitle: "Integrazione Database Neon",
+    neonDesc: "Testa la connessione al database Postgres serverless.",
+    testBtn: "Test Connessione",
+    checking: "Verifica...",
+    missingTitle: "Prodotti mancanti?",
+    missingDesc: "Trovali tutti.",
+    buyBtn: "Acquista Online",
+    whatsapp: "Ordina via WhatsApp: (11) 99227-9655"
+  }
+};
+
 export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) => {
+    const t = TEXTS[language];
     const [dbStatus, setDbStatus] = useState<string | null>(null);
     const [isCheckingDb, setIsCheckingDb] = useState(false);
 
     const checkDbConnection = async () => {
         setIsCheckingDb(true);
-        setDbStatus('Connecting to database...');
+        setDbStatus(language === 'pt' ? 'Conectando...' : 'Connecting to database...');
         try {
             const response = await fetch('/api/db-status');
             const data = await response.json();
@@ -38,7 +118,7 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) =>
   return (
     <div className="pb-24 pt-8 px-4 animate-fade-in">
       <div className="mb-12">
-        <h1 className="text-4xl font-bold mb-8">Technical guides.</h1>
+        <h1 className="text-4xl font-bold mb-8">{t.title}</h1>
         
         <div className="grid grid-cols-2 gap-4">
             {GUIDES.map((guide) => (
@@ -55,14 +135,14 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) =>
       </div>
       
       <div className="mb-12">
-        <h2 className="text-2xl font-bold mb-2">Neon Database Integration</h2>
-        <p className="text-gray-400 mb-6">Test the connection to the serverless Postgres database deployed on Vercel.</p>
+        <h2 className="text-2xl font-bold mb-2">{t.neonTitle}</h2>
+        <p className="text-gray-400 mb-6">{t.neonDesc}</p>
         <button
             onClick={checkDbConnection}
             disabled={isCheckingDb}
             className="border-2 border-white text-white font-bold uppercase py-3 px-8 text-sm hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-            {isCheckingDb ? 'Checking...' : 'Test Connection'}
+            {isCheckingDb ? t.checking : t.testBtn}
         </button>
         {dbStatus && (
             <pre className="mt-4 p-4 bg-[#1a1a1a] border border-gray-800 text-xs text-white whitespace-pre-wrap font-mono rounded-sm">
@@ -72,10 +152,10 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) =>
       </div>
 
       <div className="mb-12">
-        <h2 className="text-2xl font-bold mb-2">Missing products?</h2>
-        <p className="text-gray-400 mb-6">Find them all.</p>
+        <h2 className="text-2xl font-bold mb-2">{t.missingTitle}</h2>
+        <p className="text-gray-400 mb-6">{t.missingDesc}</p>
         <button className="border-2 border-white text-white font-bold uppercase py-3 px-8 text-sm hover:bg-white hover:text-black transition-colors">
-          Buy Online
+          {t.buyBtn}
         </button>
         <a 
             href="https://wa.me/5511992279655?text=Gostaria%20de%20agendar,%20vim%20atrav%C3%A9s%20do%20site"
@@ -83,7 +163,7 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) =>
             rel="noopener noreferrer"
             className="block mt-6 text-[10px] text-gray-500 uppercase tracking-[0.2em] hover:text-white transition-colors"
         >
-            Order via WhatsApp: (11) 99227-9655
+            {t.whatsapp}
         </a>
       </div>
 
