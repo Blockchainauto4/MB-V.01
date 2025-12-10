@@ -1,5 +1,9 @@
 import React from 'react';
-import { Swatch } from '../types';
+import { Swatch, Language } from '../types';
+
+interface SwatchbookProps {
+  language: Language;
+}
 
 const SWATCHES: Swatch[] = [
   { id: '1', code: '1.0', name: 'Black', color: '#1a1a1a', family: 'Natural' },
@@ -16,7 +20,7 @@ const SWATCHES: Swatch[] = [
   { id: '12', code: '4.20', name: 'Violine', color: '#3d2636', family: 'Violet' },
 ];
 
-export const Swatchbook: React.FC = () => {
+export const Swatchbook: React.FC<SwatchbookProps> = ({ language }) => {
   return (
     <div className="pb-24 pt-8 px-4 animate-fade-in">
       <div className="mb-8">

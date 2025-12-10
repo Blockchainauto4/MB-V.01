@@ -1,7 +1,25 @@
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type } from '@google/genai';
-import { VisagismAnalysis } from '../types';
+
+// Define interface locally to avoid module resolution issues in Vercel functions
+interface VisagismAnalysis {
+  faceShape: string;
+  skinTone: string;
+  eyeColor: string;
+  bestColors: string[];
+  hairSuggestion: string;
+  reasoning: string;
+  imageGenerationPrompt: string;
+}
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: 'English',
+  pt: 'Portuguese',
+  es: 'Spanish',
+  de: 'German',
+  fr: 'French',
+  it: 'Italian'
+};
 
 // This function runs on the server, keeping the API key secure.
 function getAiClient(): GoogleGenAI {
@@ -25,16 +43,18 @@ const analysisSchema = {
   required: ["faceShape", "skinTone", "eyeColor", "bestColors", "hairSuggestion", "reasoning", "imageGenerationPrompt"]
 };
 
-const analyzeFace = async (base64Image: string): Promise<VisagismAnalysis> => {
+const analyzeFace = async (base64Image: string, language: string): Promise<VisagismAnalysis> => {
   const client = getAiClient();
   const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg);base64,/, "");
+  
+  const targetLang = LANGUAGE_NAMES[language] || 'English';
 
   const response = await client.models.generateContent({
     model: 'gemini-2.5-flash',
     contents: {
       parts: [
         { inlineData: { mimeType: 'image/jpeg', data: cleanBase64 } },
-        { text: "Analyze this face for a professional Visagismo consultation. Identify the face shape, skin tone, and suggest the best hair transformation. Return the response in JSON." }
+        { text: `Analyze this face for a professional Visagismo consultation. Identify the face shape, skin tone, and suggest the best hair transformation. Return the response in JSON. IMPORTANT: All text fields (faceShape, skinTone, hairSuggestion, reasoning) MUST be in ${targetLang}. The 'imageGenerationPrompt' must remain in English.` }
       ]
     },
     config: {
@@ -49,24 +69,6 @@ const analyzeFace = async (base64Image: string): Promise<VisagismAnalysis> => {
   return JSON.parse(jsonText) as VisagismAnalysis;
 };
 
-const generatePreview = async (prompt: string): Promise<string> => {
-  const client = getAiClient();
-  const response = await client.models.generateContent({
-    model: 'gemini-2.5-flash-image',
-    contents: { parts: [{ text: prompt }] }
-  });
-
-  if (response.candidates?.[0]?.content?.parts) {
-     for (const part of response.candidates[0].content.parts) {
-       if (part.inlineData) {
-         return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-       }
-     }
-  }
-  throw new Error("No image generated");
-};
-
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -74,19 +76,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { imageBase64 } = req.body;
+    const { imageBase64, language } = req.body;
     if (!imageBase64) {
       return res.status(400).json({ error: 'Missing imageBase64 in request body.' });
     }
 
-    // 1. Analyze the face
-    const analysis = await analyzeFace(imageBase64);
+    // 1. Analyze the face ONLY (Image generation is now handled by /api/generate-style)
+    const analysis = await analyzeFace(imageBase64, language || 'en');
 
-    // 2. Generate the style preview
-    const generatedImage = await generatePreview(analysis.imageGenerationPrompt);
-
-    // 3. Send both back to the client
-    res.status(200).json({ analysis, generatedImage });
+    res.status(200).json({ analysis });
 
   } catch (error: any) {
     console.error('API Error in /api/analyze:', error);

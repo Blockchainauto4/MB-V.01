@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import { Language } from '../types';
+
+interface TechnicalGuidesProps {
+  language: Language;
+}
 
 const GUIDES = [
   { id: '1', title: 'Inoa', color: 'border-green-500' },
@@ -8,7 +13,7 @@ const GUIDES = [
   { id: '5', title: 'Blond studio', color: 'border-teal-400' },
 ];
 
-export const TechnicalGuides: React.FC = () => {
+export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) => {
     const [dbStatus, setDbStatus] = useState<string | null>(null);
     const [isCheckingDb, setIsCheckingDb] = useState(false);
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Tab } from './types';
+import { Tab, Language } from './types';
 import { IntroScreen } from './components/IntroScreen';
+import { LanguageScreen } from './components/LanguageScreen';
 import { BottomNav } from './components/BottomNav';
 import { Consultation } from './components/Consultation';
 import { Swatchbook } from './components/Swatchbook';
@@ -9,8 +10,14 @@ import { WeddingServices } from './components/WeddingServices';
 import { Logo } from './components/Logo';
 
 const App: React.FC = () => {
+  const [language, setLanguage] = useState<Language | null>(null);
   const [showIntro, setShowIntro] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>(Tab.CONSULTATION);
+
+  // Flow: Language Screen -> Intro Screen -> Main App
+  if (!language) {
+    return <LanguageScreen onSelect={setLanguage} />;
+  }
 
   if (showIntro) {
     return <IntroScreen onComplete={() => setShowIntro(false)} />;
@@ -19,15 +26,15 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (activeTab) {
       case Tab.CONSULTATION:
-        return <Consultation />;
+        return <Consultation language={language} />;
       case Tab.EXPLORE:
-        return <Swatchbook />;
+        return <Swatchbook language={language} />;
       case Tab.WEDDING:
-        return <WeddingServices />;
+        return <WeddingServices language={language} />;
       case Tab.CATALOGUE:
-        return <TechnicalGuides />;
+        return <TechnicalGuides language={language} />;
       default:
-        return <Consultation />;
+        return <Consultation language={language} />;
     }
   };
 

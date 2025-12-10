@@ -1,9 +1,11 @@
+
 export interface ChatMessage {
   role: 'user' | 'model';
   text: string;
   image?: string; // Base64 string of the captured image
   analysis?: VisagismAnalysis; // Structured analysis data
   generatedImage?: string; // URL or Base64 of the generated style preview
+  originalPrompt?: string; // The prompt used to create the generatedImage (for history/refining)
 }
 
 export interface VisagismAnalysis {
@@ -38,3 +40,5 @@ export enum Tab {
   CATALOGUE = 'Catalogue',
   WEDDING = 'Bridal'
 }
+
+export type Language = 'en' | 'pt' | 'es' | 'de' | 'fr' | 'it';

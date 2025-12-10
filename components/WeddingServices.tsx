@@ -1,4 +1,9 @@
 import React from 'react';
+import { Language } from '../types';
+
+interface WeddingServicesProps {
+  language: Language;
+}
 
 const PACKAGES = [
   {
@@ -21,7 +26,7 @@ const GALLERY_IMAGES = [
   "https://images.unsplash.com/photo-1522673607200-1645062cd958?q=80&w=500&auto=format&fit=crop"
 ];
 
-export const WeddingServices: React.FC = () => {
+export const WeddingServices: React.FC<WeddingServicesProps> = ({ language }) => {
   return (
     <div className="pb-24 pt-8 px-4 animate-fade-in">
       <div className="mb-8">
