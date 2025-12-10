@@ -1,7 +1,6 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI, Chat } from '@google/genai';
-import { ChatMessage } from '../types'; // Assuming types.ts is at the root
+import { GoogleGenAI } from '@google/genai';
 
 const CONSULTATION_SYSTEM_INSTRUCTION = `
 You are a world-class professional hair colorist and Visagismo expert working for Beatriz Bittencourt Professional.
