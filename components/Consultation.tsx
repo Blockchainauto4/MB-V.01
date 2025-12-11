@@ -37,6 +37,11 @@ const TEXTS: Record<Language, {
   shorter: string;
   longer: string;
   refine: string;
+  finalize: string;
+  finalImage: string;
+  generatingFinal: string;
+  errorFinal: string;
+  noApiKey: string;
 }> = {
   en: {
     welcome: "Welcome to Beatriz Bittencourt Professional. I am your Visagismo expert. Start a video analysis to find your perfect match, or chat with me directly.",
@@ -67,7 +72,12 @@ const TEXTS: Record<Language, {
     darker: "Darker",
     shorter: "Shorter",
     longer: "Longer",
-    refine: "Refine Look"
+    refine: "Refine Look",
+    finalize: "Finalize with DALL·E 2",
+    finalImage: "Final Image (DALL·E 2)",
+    generatingFinal: "Generating final image...",
+    errorFinal: "Failed to generate the final image. Please check your API key in the Guides tab.",
+    noApiKey: "To use this feature, please save your OpenAI API key in the 'Guides' tab.",
   },
   pt: {
     welcome: "Bem-vindo à Beatriz Bittencourt Professional. Sou sua especialista em Visagismo. Comece uma análise de vídeo para encontrar sua combinação perfeita ou converse comigo diretamente.",
@@ -98,7 +108,12 @@ const TEXTS: Record<Language, {
     darker: "Mais Escuro",
     shorter: "Mais Curto",
     longer: "Mais Longo",
-    refine: "Refinar Visual"
+    refine: "Refinar Visual",
+    finalize: "Finalizar com DALL·E 2",
+    finalImage: "Imagem Final (DALL·E 2)",
+    generatingFinal: "Gerando imagem final...",
+    errorFinal: "Falha ao gerar a imagem final. Verifique sua chave de API na aba 'Guias'.",
+    noApiKey: "Para usar este recurso, salve sua chave de API da OpenAI na aba 'Guias'.",
   },
   es: {
     welcome: "Bienvenido a Beatriz Bittencourt Professional. Soy tu experta en Visagismo. Inicia un análisis de video para encontrar tu tono perfecto o chatea conmigo.",
@@ -129,9 +144,14 @@ const TEXTS: Record<Language, {
     darker: "Más Oscuro",
     shorter: "Más Corto",
     longer: "Más Largo",
-    refine: "Refinar Look"
+    refine: "Refinar Look",
+    finalize: "Finalizar con DALL·E 2",
+    finalImage: "Imagen Final (DALL·E 2)",
+    generatingFinal: "Generando imagen final...",
+    errorFinal: "Error al generar la imagen final. Comprueba tu clave de API en la pestaña 'Guías'.",
+    noApiKey: "Para usar esta función, guarda tu clave de API de OpenAI en la pestaña 'Guías'.",
   },
-  de: {
+  de: { // German Translations
     welcome: "Willkommen bei Beatriz Bittencourt Professional. Ich bin Ihr Visagismus-Experte. Starten Sie eine Videoanalyse oder chatten Sie direkt mit mir.",
     title: "Professioneller Visagismus",
     subtitle: "powered by AI analysis.",
@@ -160,9 +180,14 @@ const TEXTS: Record<Language, {
     darker: "Dunkler",
     shorter: "Kürzer",
     longer: "Länger",
-    refine: "Verfeinern"
+    refine: "Verfeinern",
+    finalize: "Fertigstellen mit DALL·E 2",
+    finalImage: "Endgültiges Bild (DALL·E 2)",
+    generatingFinal: "Endgültiges Bild wird generiert...",
+    errorFinal: "Fehler beim Generieren des endgültigen Bildes. Bitte überprüfen Sie Ihren API-Schlüssel im Reiter 'Guides'.",
+    noApiKey: "Um diese Funktion zu nutzen, speichern Sie bitte Ihren OpenAI API-Schlüssel im Reiter 'Guides'.",
   },
-  fr: {
+  fr: { // French Translations
     welcome: "Bienvenue chez Beatriz Bittencourt Professional. Je suis votre expert en Visagisme. Commencez une analyse vidéo ou discutez avec moi.",
     title: "Visagisme Professionnel",
     subtitle: "propulsé par l'IA.",
@@ -191,9 +216,14 @@ const TEXTS: Record<Language, {
     darker: "Plus Foncé",
     shorter: "Plus Court",
     longer: "Plus Long",
-    refine: "Affiner"
+    refine: "Affiner",
+    finalize: "Finaliser avec DALL·E 2",
+    finalImage: "Image Finale (DALL·E 2)",
+    generatingFinal: "Génération de l'image finale...",
+    errorFinal: "Échec de la génération de l'image finale. Veuillez vérifier votre clé API dans l'onglet 'Guides'.",
+    noApiKey: "Pour utiliser cette fonctionnalité, veuillez enregistrer votre clé API OpenAI dans l'onglet 'Guides'.",
   },
-  it: {
+  it: { // Italian Translations
     welcome: "Benvenuto in Beatriz Bittencourt Professional. Sono il tuo esperto di Visagismo. Inizia un'analisi video o chatta con me.",
     title: "Visagismo Professionale",
     subtitle: "powered by AI analysis.",
@@ -222,7 +252,12 @@ const TEXTS: Record<Language, {
     darker: "Più Scuro",
     shorter: "Più Corto",
     longer: "Più Lungo",
-    refine: "Raffina"
+    refine: "Raffina",
+    finalize: "Finalizza con DALL·E 2",
+    finalImage: "Immagine Finale (DALL·E 2)",
+    generatingFinal: "Generazione immagine finale...",
+    errorFinal: "Impossibile generare l'immagine finale. Controlla la tua chiave API nella scheda 'Guide'.",
+    noApiKey: "Per utilizzare questa funzione, salva la tua chiave API OpenAI nella scheda 'Guide'.",
   }
 };
 
@@ -264,7 +299,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
   // Extract all generated images from history for the gallery
   const generatedHistory = messages
-    .filter(m => m.generatedImage && m.originalPrompt)
+    .filter(m => m.generatedImage && m.originalPrompt && !m.isFinalImage)
     .map(m => ({ src: m.generatedImage!, prompt: m.originalPrompt! }));
 
   const handleGallerySelect = (prompt: string, src: string) => {
@@ -431,13 +466,52 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             // Automatically select the new image as active
             setActivePrompt(prompt);
             setActiveGeneratedImageSrc(generatedImage);
+        } else {
+             throw new Error("Generation failed");
         }
     } catch (genError) {
         console.error("Generation Error:", genError);
-        // We don't block the UI if generation fails, the analysis is already there
+        setMessages(prev => [...prev, { role: 'model', text: t.errorAnalysis }]);
     } finally {
         setLoading(false);
         setLoadingText('');
+    }
+  };
+
+  const handleFinalize = async () => {
+    const apiKey = localStorage.getItem('openai_api_key');
+    if (!apiKey) {
+      alert(t.noApiKey);
+      return;
+    }
+    if (!activePrompt) return;
+
+    setLoading(true);
+    setLoadingText(t.generatingFinal);
+
+    try {
+      const response = await fetch('/api/generate-final-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: activePrompt, apiKey }),
+      });
+
+      if (!response.ok) throw new Error('Failed to generate final image.');
+      
+      const { finalImage } = await response.json();
+      setMessages(prev => [...prev, {
+        role: 'model',
+        text: '',
+        generatedImage: finalImage,
+        isFinalImage: true
+      }]);
+
+    } catch (error) {
+      console.error("DALL-E 2 Error:", error);
+      setMessages(prev => [...prev, { role: 'model', text: t.errorFinal }]);
+    } finally {
+      setLoading(false);
+      setLoadingText('');
     }
   };
 
@@ -447,11 +521,11 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       // Map basic modifiers to technical prompt additions
       let modification = "";
       switch(modifier) {
-          case 'regenerate': modification = " slight variation, consistent lighting"; break;
-          case 'lighter': modification = " lighter hair color shade, soft highlights"; break;
-          case 'darker': modification = " darker hair color depth, richer tone"; break;
-          case 'shorter': modification = " slightly shorter hair length, modern cut"; break;
-          case 'longer': modification = " slightly longer hair length, extensions look"; break;
+          case 'regenerate': modification = "slight variation, consistent lighting"; break;
+          case 'lighter': modification = "lighter hair color shade, soft highlights"; break;
+          case 'darker': modification = "darker hair color depth, richer tone"; break;
+          case 'shorter': modification = "slightly shorter hair length, modern cut"; break;
+          case 'longer': modification = "slightly longer hair length, extensions look"; break;
           default: modification = "";
       }
 
@@ -606,12 +680,14 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             {msg.generatedImage && (
                <div className={`mb-2 max-w-[85%] border rounded overflow-hidden relative group flex flex-col transition-all ${activeGeneratedImageSrc === msg.generatedImage ? 'border-white shadow-lg' : 'border-gray-700'}`}>
                   <div className="relative">
-                      <div className="absolute top-2 left-2 bg-black/50 backdrop-blur px-2 py-1 text-[8px] uppercase tracking-widest text-white z-10">{t.projection}</div>
+                      <div className="absolute top-2 left-2 bg-black/50 backdrop-blur px-2 py-1 text-[8px] uppercase tracking-widest text-white z-10">
+                        {msg.isFinalImage ? t.finalImage : t.projection}
+                      </div>
                       <img 
                           src={msg.generatedImage} 
                           alt="Generated Look" 
                           className="w-full h-auto cursor-pointer" 
-                          onClick={() => handleGallerySelect(msg.originalPrompt || "", msg.generatedImage!)}
+                          onClick={() => !msg.isFinalImage && handleGallerySelect(msg.originalPrompt || "", msg.generatedImage!)}
                       />
                   </div>
                </div>
@@ -650,14 +726,24 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
         {/* Refinement Controls - Fixed at bottom above input */}
         {activePrompt && !loading && (
-            <div className="bg-[#0a0a0a] p-3 border-t border-gray-900 mx-4 mb-2">
-                <div className="text-[9px] text-gray-500 uppercase tracking-widest text-center mb-2">{t.refine}: {t.variations}</div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                    <button onClick={() => handleRefine('regenerate')} className="col-span-2 md:col-span-1 text-[9px] font-bold uppercase border border-gray-700 bg-gray-900 text-white py-2 hover:bg-white hover:text-black transition-colors">{t.regenerate}</button>
-                    <button onClick={() => handleRefine('lighter')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.lighter}</button>
-                    <button onClick={() => handleRefine('darker')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.darker}</button>
-                    <button onClick={() => handleRefine('shorter')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.shorter}</button>
-                    <button onClick={() => handleRefine('longer')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.longer}</button>
+            <div className="bg-[#0a0a0a] p-3 border-t border-gray-900 mx-4 mb-2 space-y-2">
+                <div>
+                    <div className="text-[9px] text-gray-500 uppercase tracking-widest text-center mb-2">{t.refine}: {t.variations}</div>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                        <button onClick={() => handleRefine('regenerate')} className="col-span-2 md:col-span-1 text-[9px] font-bold uppercase border border-gray-700 bg-gray-900 text-white py-2 hover:bg-white hover:text-black transition-colors">{t.regenerate}</button>
+                        <button onClick={() => handleRefine('lighter')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.lighter}</button>
+                        <button onClick={() => handleRefine('darker')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.darker}</button>
+                        <button onClick={() => handleRefine('shorter')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.shorter}</button>
+                        <button onClick={() => handleRefine('longer')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.longer}</button>
+                    </div>
+                </div>
+                <div>
+                    <button 
+                      onClick={handleFinalize}
+                      className="w-full text-[10px] font-bold uppercase bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 hover:opacity-90 transition-opacity"
+                    >
+                        {t.finalize}
+                    </button>
                 </div>
             </div>
         )}
