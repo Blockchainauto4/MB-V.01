@@ -9,19 +9,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { prompt, apiKey } = req.body;
 
-    if (!prompt || !apiKey) {
-      return res.status(400).json({ error: 'Missing prompt or apiKey in request body.' });
+    if (!prompt) {
+      return res.status(400).json({ error: 'Missing prompt in request body.' });
+    }
+
+    // PRIORITY: 
+    // 1. User provided key (from frontend/localStorage)
+    // 2. Admin Global Key (from Vercel Environment Variables)
+    const keyToUse = apiKey || process.env.ADMIN_OPENAI_KEY;
+
+    if (!keyToUse) {
+      return res.status(401).json({ 
+        error: 'No API Key available.', 
+        details: 'User has not provided a key and no Global Admin Key is configured.' 
+      });
     }
 
     const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${keyToUse}`,
       },
       body: JSON.stringify({
-        model: "dall-e-2", // DALL-E 2 is more cost-effective for this use case
-        prompt: `${prompt}, ultra-realistic photograph, 8k, cinematic lighting, sharp focus`,
+        model: "dall-e-2",
+        prompt: `${prompt}, ultra-realistic photograph, 8k, cinematic lighting, sharp focus, professional portrait photography`,
         n: 1,
         size: "1024x1024",
         response_format: 'b64_json',

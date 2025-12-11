@@ -35,6 +35,7 @@ const TEXTS: Record<Language, {
   logsTitle: string;
   logsDesc: string;
   logsBtn: string;
+  adminNote: string;
 }> = {
   en: {
     title: "Technical guides.",
@@ -56,6 +57,7 @@ const TEXTS: Record<Language, {
     logsTitle: "System Logs",
     logsDesc: "View client-side application logs, errors, and API activity.",
     logsBtn: "Open Logs Dashboard",
+    adminNote: "Admin Tip: To enable this feature for ALL users (Service Mode), add 'ADMIN_OPENAI_KEY' to your Vercel Environment Variables.",
   },
   pt: {
     title: "Guias Técnicos.",
@@ -77,6 +79,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Logs do Sistema",
     logsDesc: "Visualize logs da aplicação, erros e atividade da API.",
     logsBtn: "Abrir Painel de Logs",
+    adminNote: "Dica Admin: Para ativar este recurso para TODOS (Modo Serviço), adicione 'ADMIN_OPENAI_KEY' nas Variáveis de Ambiente do Vercel.",
   },
   es: {
     title: "Guías Técnicas.",
@@ -98,6 +101,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Registros del Sistema",
     logsDesc: "Ver registros de la aplicación, errores y actividad de API.",
     logsBtn: "Abrir Panel de Registros",
+    adminNote: "Tip Admin: Para activar esto para TODOS (Modo Servicio), añade 'ADMIN_OPENAI_KEY' a tus Variables de Entorno en Vercel.",
   },
   de: {
     title: "Technische Anleitungen.",
@@ -119,6 +123,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Systemprotokolle",
     logsDesc: "Anwendungsprotokolle, Fehler und API-Aktivitäten anzeigen.",
     logsBtn: "Protokolle Öffnen",
+    adminNote: "Admin-Tipp: Um dies für ALLE Benutzer zu aktivieren (Service-Modus), fügen Sie 'ADMIN_OPENAI_KEY' in Vercel hinzu.",
   },
   fr: {
     title: "Guides Techniques.",
@@ -140,6 +145,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Journaux Système",
     logsDesc: "Voir les journaux d'application, erreurs et activité API.",
     logsBtn: "Ouvrir le Tableau de Bord",
+    adminNote: "Astuce Admin : Pour activer pour TOUS (Mode Service), ajoutez 'ADMIN_OPENAI_KEY' dans Vercel.",
   },
   it: {
     title: "Guide Tecniche.",
@@ -161,6 +167,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Log di Sistema",
     logsDesc: "Visualizza log applicazione, errori e attività API.",
     logsBtn: "Apri Dashboard Log",
+    adminNote: "Suggerimento Admin: Per abilitare per TUTTI (Modo Servizio), aggiungi 'ADMIN_OPENAI_KEY' su Vercel.",
   }
 };
 
@@ -270,6 +277,7 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
                 </button>
             </div>
             {keyStatus && <p className="text-green-500 text-xs mt-2">{keyStatus}</p>}
+            <p className="text-gray-600 text-[10px] mt-2 italic">{t.adminNote}</p>
         </div>
       </div>
       

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { logger, LogEntry, LogLevel } from '../services/logger';
-import { Tab } from '../types';
 
 interface LogsDashboardProps {
   onBack: () => void;

@@ -80,7 +80,7 @@ const TEXTS: Record<Language, {
     finalImage: "Final Image",
     generatingFinal: "Generating final image...",
     errorFinal: "Failed to generate the final image.",
-    noApiKey: "To use DALL·E 2, please save your OpenAI API key in the 'Guides' tab.",
+    noApiKey: "Service Mode not active. Please add your own Key in Guides, or contact Admin.",
   },
   pt: {
     welcome: "Bem-vindo à Beatriz Bittencourt Professional. Sou sua especialista em Visagismo. Comece uma análise de vídeo para encontrar sua combinação perfeita ou converse comigo diretamente.",
@@ -117,7 +117,7 @@ const TEXTS: Record<Language, {
     finalImage: "Imagem Final",
     generatingFinal: "Gerando imagem final...",
     errorFinal: "Falha ao gerar a imagem final.",
-    noApiKey: "Para usar DALL·E 2, salve sua chave de API na aba 'Guias'.",
+    noApiKey: "Modo Serviço inativo. Adicione sua chave em Guias ou contate o Admin.",
   },
   es: {
     welcome: "Bienvenido a Beatriz Bittencourt Professional. Soy tu experta en Visagismo. Inicia un análisis de video para encontrar tu tono perfecto o chatea conmigo.",
@@ -154,7 +154,7 @@ const TEXTS: Record<Language, {
     finalImage: "Imagen Final",
     generatingFinal: "Generando imagen final...",
     errorFinal: "Error al generar la imagen final.",
-    noApiKey: "Para usar DALL·E 2, guarda tu clave de API en la pestaña 'Guías'.",
+    noApiKey: "Modo Servicio inactivo. Añade tu clave en Guías o contacta al Admin.",
   },
   de: {
     welcome: "Willkommen bei Beatriz Bittencourt Professional. Ich bin Ihr Visagismus-Experte. Starten Sie eine Videoanalyse oder chatten Sie direkt mit mir.",
@@ -191,7 +191,7 @@ const TEXTS: Record<Language, {
     finalImage: "Endgültiges Bild",
     generatingFinal: "Endgültiges Bild wird generiert...",
     errorFinal: "Fehler beim Generieren des endgültigen Bildes.",
-    noApiKey: "Für DALL·E 2 speichern Sie bitte Ihren API-Schlüssel im Reiter 'Guides'.",
+    noApiKey: "Service-Modus inaktiv. Fügen Sie Ihren Schlüssel in Guides hinzu.",
   },
   fr: {
     welcome: "Bienvenue chez Beatriz Bittencourt Professional. Je suis votre expert en Visagisme. Commencez une analyse vidéo ou discutez avec moi.",
@@ -228,7 +228,7 @@ const TEXTS: Record<Language, {
     finalImage: "Image Finale",
     generatingFinal: "Génération de l'image finale...",
     errorFinal: "Échec de la génération de l'image finale.",
-    noApiKey: "Pour utiliser DALL·E 2, enregistrez votre clé API dans l'onglet 'Guides'.",
+    noApiKey: "Mode Service inactif. Ajoutez votre clé dans Guides ou contactez l'Admin.",
   },
   it: {
     welcome: "Benvenuto in Beatriz Bittencourt Professional. Sono il tuo esperto di Visagismo. Inizia un'analisi video o chatta con me.",
@@ -265,7 +265,7 @@ const TEXTS: Record<Language, {
     finalImage: "Immagine Finale",
     generatingFinal: "Generazione immagine finale...",
     errorFinal: "Impossibile generare l'immagine finale.",
-    noApiKey: "Per DALL·E 2, salva la tua chiave API nella scheda 'Guide'.",
+    noApiKey: "Modalità Servizio inattiva. Aggiungi la tua chiave in Guide.",
   }
 };
 
@@ -529,11 +529,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
   };
 
   const handleFinalize = async () => {
+    // Check local storage OR proceed if admin key might be configured on server
     const apiKey = localStorage.getItem('openai_api_key');
-    if (!apiKey) {
-      alert(t.noApiKey);
-      return;
-    }
     if (!activePrompt) return;
 
     setLoading(true);
@@ -544,8 +541,15 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       const response = await fetch('/api/generate-final-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: activePrompt, apiKey }),
+        body: JSON.stringify({ prompt: activePrompt, apiKey: apiKey }), // apiKey can be null
       });
+
+      if (response.status === 401) {
+          alert(t.noApiKey);
+          setLoading(false);
+          setLoadingText('');
+          return;
+      }
 
       if (!response.ok) throw new Error('Failed to generate final image.');
       
