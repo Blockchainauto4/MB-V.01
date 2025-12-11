@@ -25,8 +25,8 @@ const TEXTS: Record<Language, {
   missingDesc: string;
   buyBtn: string;
   whatsapp: string;
-  hqTitle: string;
-  hqDesc: string;
+  openaiTitle: string;
+  openaiDesc: string;
   apiKeyPlaceholder: string;
   saveKey: string;
   clearKey: string;
@@ -47,8 +47,8 @@ const TEXTS: Record<Language, {
     missingDesc: "Find them all.",
     buyBtn: "Buy Online",
     whatsapp: "Order via WhatsApp: (11) 99227-9655",
-    hqTitle: "OpenAI Integration",
-    hqDesc: "Save your OpenAI API key to generate high-quality final images (DALL-E 3). Your key is stored securely in your browser.",
+    openaiTitle: "OpenAI DALL·E 2 Integration",
+    openaiDesc: "Save your OpenAI API key to generate high-quality final images. Your key is stored securely in your browser.",
     apiKeyPlaceholder: "Enter your OpenAI API Key...",
     saveKey: "Save Key",
     clearKey: "Clear Key",
@@ -57,7 +57,7 @@ const TEXTS: Record<Language, {
     logsTitle: "System Logs",
     logsDesc: "View client-side application logs, errors, and API activity.",
     logsBtn: "Open Logs Dashboard",
-    adminNote: "Admin Tip: To enable this feature for ALL users (Service Mode), add 'OPENAI_API_KEY' to your Vercel Environment Variables.",
+    adminNote: "Admin Tip: To enable this feature for ALL users (Service Mode), add 'ADMIN_OPENAI_KEY' to your Vercel Environment Variables.",
   },
   pt: {
     title: "Guias Técnicos.",
@@ -69,9 +69,9 @@ const TEXTS: Record<Language, {
     missingDesc: "Encontre todos eles.",
     buyBtn: "Comprar Online",
     whatsapp: "Peça via WhatsApp: (11) 99227-9655",
-    hqTitle: "Integração OpenAI",
-    hqDesc: "Salve sua chave de API OpenAI para gerar imagens finais de alta qualidade (DALL-E 3). Sua chave é armazenada com segurança no seu navegador.",
-    apiKeyPlaceholder: "Insira sua chave API OpenAI...",
+    openaiTitle: "Integração OpenAI DALL·E 2",
+    openaiDesc: "Salve sua chave de API da OpenAI para gerar imagens finais de alta qualidade. Sua chave é armazenada com segurança no seu navegador.",
+    apiKeyPlaceholder: "Insira sua chave de API da OpenAI...",
     saveKey: "Salvar Chave",
     clearKey: "Limpar Chave",
     keySaved: "Chave de API salva!",
@@ -79,7 +79,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Logs do Sistema",
     logsDesc: "Visualize logs da aplicação, erros e atividade da API.",
     logsBtn: "Abrir Painel de Logs",
-    adminNote: "Dica Admin: Para ativar este recurso para TODOS (Modo Serviço), adicione 'OPENAI_API_KEY' nas Variáveis de Ambiente do Vercel.",
+    adminNote: "Dica Admin: Para ativar este recurso para TODOS (Modo Serviço), adicione 'ADMIN_OPENAI_KEY' nas Variáveis de Ambiente do Vercel.",
   },
   es: {
     title: "Guías Técnicas.",
@@ -91,9 +91,9 @@ const TEXTS: Record<Language, {
     missingDesc: "Encuéntralos todos.",
     buyBtn: "Comprar en Línea",
     whatsapp: "Pedir por WhatsApp: (11) 99227-9655",
-    hqTitle: "Integración OpenAI",
-    hqDesc: "Guarda tu clave API de OpenAI para generar imágenes finales de alta calidad (DALL-E 3). Tu clave se almacena de forma segura en tu navegador.",
-    apiKeyPlaceholder: "Introduce tu clave API OpenAI...",
+    openaiTitle: "Integración con OpenAI DALL·E 2",
+    openaiDesc: "Guarda tu clave de API de OpenAI para generar imágenes finales de alta calidad. Tu clave se almacena de forma segura en tu navegador.",
+    apiKeyPlaceholder: "Introduce tu clave de API de OpenAI...",
     saveKey: "Guardar Clave",
     clearKey: "Borrar Clave",
     keySaved: "¡Clave de API guardada!",
@@ -101,7 +101,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Registros del Sistema",
     logsDesc: "Ver registros de la aplicación, errores y actividad de API.",
     logsBtn: "Abrir Panel de Registros",
-    adminNote: "Tip Admin: Para activar esto para TODOS (Modo Servicio), añade 'OPENAI_API_KEY' a tus Variables de Entorno en Vercel.",
+    adminNote: "Tip Admin: Para activar esto para TODOS (Modo Servicio), añade 'ADMIN_OPENAI_KEY' a tus Variables de Entorno en Vercel.",
   },
   de: {
     title: "Technische Anleitungen.",
@@ -113,8 +113,8 @@ const TEXTS: Record<Language, {
     missingDesc: "Finden Sie alle.",
     buyBtn: "Online Kaufen",
     whatsapp: "Bestellung per WhatsApp: (11) 99227-9655",
-    hqTitle: "OpenAI Integration",
-    hqDesc: "Speichern Sie Ihren OpenAI API-Schlüssel, um hochwertige endgültige Bilder zu generieren (DALL-E 3).",
+    openaiTitle: "OpenAI DALL·E 2 Integration",
+    openaiDesc: "Speichern Sie Ihren OpenAI API-Schlüssel, um hochwertige endgültige Bilder zu generieren. Ihr Schlüssel wird sicher in Ihrem Browser gespeichert.",
     apiKeyPlaceholder: "Geben Sie Ihren OpenAI API-Schlüssel ein...",
     saveKey: "Schlüssel Speichern",
     clearKey: "Schlüssel Löschen",
@@ -123,7 +123,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Systemprotokolle",
     logsDesc: "Anwendungsprotokolle, Fehler und API-Aktivitäten anzeigen.",
     logsBtn: "Protokolle Öffnen",
-    adminNote: "Admin-Tipp: Um dies für ALLE Benutzer zu aktivieren, fügen Sie 'OPENAI_API_KEY' in Vercel hinzu.",
+    adminNote: "Admin-Tipp: Um dies für ALLE Benutzer zu aktivieren (Service-Modus), fügen Sie 'ADMIN_OPENAI_KEY' in Vercel hinzu.",
   },
   fr: {
     title: "Guides Techniques.",
@@ -135,8 +135,8 @@ const TEXTS: Record<Language, {
     missingDesc: "Retrouvez-les tous.",
     buyBtn: "Acheter en Ligne",
     whatsapp: "Commander via WhatsApp: (11) 99227-9655",
-    hqTitle: "Intégration OpenAI",
-    hqDesc: "Enregistrez votre clé API OpenAI pour générer des images finales de haute qualité (DALL-E 3).",
+    openaiTitle: "Intégration OpenAI DALL·E 2",
+    openaiDesc: "Enregistrez votre clé API OpenAI pour générer des images finales de haute qualité. Votre clé est stockée en toute sécurité dans votre navigateur.",
     apiKeyPlaceholder: "Entrez votre clé API OpenAI...",
     saveKey: "Enregistrer la Clé",
     clearKey: "Effacer la Clé",
@@ -145,7 +145,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Journaux Système",
     logsDesc: "Voir les journaux d'application, erreurs et activité API.",
     logsBtn: "Ouvrir le Tableau de Bord",
-    adminNote: "Astuce Admin : Pour activer pour TOUS, ajoutez 'OPENAI_API_KEY' dans Vercel.",
+    adminNote: "Astuce Admin : Pour activer pour TOUS (Mode Service), ajoutez 'ADMIN_OPENAI_KEY' dans Vercel.",
   },
   it: {
     title: "Guide Tecniche.",
@@ -157,8 +157,8 @@ const TEXTS: Record<Language, {
     missingDesc: "Trovali tutti.",
     buyBtn: "Acquista Online",
     whatsapp: "Ordina via WhatsApp: (11) 99227-9655",
-    hqTitle: "Integrazione OpenAI",
-    hqDesc: "Salva la tua chiave API OpenAI per generare immagini finali di alta qualità (DALL-E 3).",
+    openaiTitle: "Integrazione OpenAI DALL·E 2",
+    openaiDesc: "Salva la tua chiave API OpenAI per generare immagini finali di alta qualità. La tua chiave è memorizzata in modo sicuro nel tuo browser.",
     apiKeyPlaceholder: "Inserisci la tua chiave API OpenAI...",
     saveKey: "Salva Chiave",
     clearKey: "Cancella Chiave",
@@ -167,7 +167,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Log di Sistema",
     logsDesc: "Visualizza log applicazione, errori e attività API.",
     logsBtn: "Apri Dashboard Log",
-    adminNote: "Suggerimento Admin: Per abilitare per TUTTI, aggiungi 'OPENAI_API_KEY' su Vercel.",
+    adminNote: "Suggerimento Admin: Per abilitare per TUTTI (Modo Servizio), aggiungi 'ADMIN_OPENAI_KEY' su Vercel.",
   }
 };
 
@@ -175,19 +175,18 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
     const t = TEXTS[language];
     const [dbStatus, setDbStatus] = useState<string | null>(null);
     const [isCheckingDb, setIsCheckingDb] = useState(false);
-    const [hqKey, setHqKey] = useState('');
+    const [openAIKey, setOpenAIKey] = useState('');
     const [keyStatus, setKeyStatus] = useState('');
 
     useEffect(() => {
-        // We look for 'openai_api_key' primarily
         const savedKey = localStorage.getItem('openai_api_key');
         if (savedKey) {
-            setHqKey(savedKey);
+            setOpenAIKey(savedKey);
         }
     }, []);
 
     const handleSaveKey = () => {
-        localStorage.setItem('openai_api_key', hqKey);
+        localStorage.setItem('openai_api_key', openAIKey);
         setKeyStatus(t.keySaved);
         logger.success('auth', 'User updated OpenAI API Key manually.');
         setTimeout(() => setKeyStatus(''), 2000);
@@ -195,7 +194,7 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
 
     const handleClearKey = () => {
         localStorage.removeItem('openai_api_key');
-        setHqKey('');
+        setOpenAIKey('');
         setKeyStatus(t.keyCleared);
         logger.warn('auth', 'User cleared OpenAI API Key.');
         setTimeout(() => setKeyStatus(''), 2000);
@@ -253,13 +252,13 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
       </div>
       
       <div className="mb-12">
-        <h2 className="text-2xl font-bold mb-2">{t.hqTitle}</h2>
-        <p className="text-gray-400 mb-6 text-sm">{t.hqDesc}</p>
+        <h2 className="text-2xl font-bold mb-2">{t.openaiTitle}</h2>
+        <p className="text-gray-400 mb-6 text-sm">{t.openaiDesc}</p>
         <div className="flex flex-col gap-2">
             <input 
                 type="password"
-                value={hqKey}
-                onChange={(e) => setHqKey(e.target.value)}
+                value={openAIKey}
+                onChange={(e) => setOpenAIKey(e.target.value)}
                 placeholder={t.apiKeyPlaceholder}
                 className="bg-[#1a1a1a] border border-gray-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors w-full"
             />

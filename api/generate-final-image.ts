@@ -1,10 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// Allow up to 60 seconds for DALL-E 3 generation (standard Vercel timeout is 10s)
-export const config = {
-  maxDuration: 60,
-};
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -18,65 +13,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing prompt in request body.' });
     }
 
-    // Use passed key or server environment variable
-    const keyToUse = apiKey || process.env.OPENAI_API_KEY;
+    // PRIORITY: 
+    // 1. User provided key (from frontend/localStorage)
+    // 2. Admin Global Key (from Vercel Environment Variables)
+    const keyToUse = apiKey || process.env.ADMIN_OPENAI_KEY;
 
     if (!keyToUse) {
       return res.status(401).json({ 
         error: 'No API Key available.', 
-        details: 'System is missing API Key configuration. Please add it in the Guides tab.' 
+        details: 'User has not provided a key and no Global Admin Key is configured.' 
       });
     }
 
-    // Call OpenAI DALL-E 3 API
-    console.log("Sending request to OpenAI DALL-E 3...");
-    const response = await fetch('https://api.openai.com/v1/images/generations', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${keyToUse.trim()}`
-        },
-        body: JSON.stringify({
-            model: "dall-e-3",
-            prompt: `Professional portrait photography, 8k resolution, highly detailed, photorealistic. ${prompt}`,
-            n: 1,
-            size: "1024x1024",
-            response_format: "b64_json",
-            quality: "standard"
-        })
+    // Upgraded to DALL-E 3 for "Fiel Copy" (High Fidelity)
+    const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${keyToUse}`,
+      },
+      body: JSON.stringify({
+        model: "dall-e-3", 
+        prompt: `Professional portrait photography. ${prompt}`,
+        n: 1,
+        size: "1024x1024",
+        quality: "hd", // High Definition for better facial details
+        style: "natural", // Natural style to avoid "AI cartoon" look
+        response_format: 'b64_json',
+      }),
     });
-
-    if (!response.ok) {
-        let errorMsg = 'OpenAI API Error';
-        try {
-            const errorData = await response.json();
-            console.error('OpenAI Error Details:', JSON.stringify(errorData));
-            errorMsg = errorData.error?.message || errorData.error?.code || errorMsg;
-        } catch (e) {
-            const text = await response.text();
-            console.error('OpenAI Error Text:', text);
-            errorMsg = `OpenAI returned ${response.status}: ${text.substring(0, 100)}`;
-        }
-        throw new Error(errorMsg);
-    }
-
-    const data = await response.json();
     
-    if (!data.data || !data.data[0] || !data.data[0].b64_json) {
-        console.error("Invalid OpenAI response format:", data);
-        throw new Error("Invalid response format from OpenAI (No image data).");
+    if (!openaiResponse.ok) {
+        const errorData = await openaiResponse.json();
+        console.error('OpenAI API Error:', errorData);
+        throw new Error(errorData.error?.message || 'Failed to generate image with DALL-E 3.');
     }
 
-    const finalImage = `data:image/png;base64,${data.data[0].b64_json}`;
-    console.log("Image successfully generated.");
+    const data = await openaiResponse.json();
+    const imageB64 = data.data[0].b64_json;
+    const finalImage = `data:image/png;base64,${imageB64}`;
 
     res.status(200).json({ finalImage });
 
   } catch (error: any) {
     console.error('API Error in /api/generate-final-image:', error);
-    res.status(500).json({ 
-        error: 'Failed to generate image.', 
-        details: error.message || 'Unknown server error' 
-    });
+    res.status(500).json({ error: 'Failed to generate the final image.', details: error.message });
   }
 }

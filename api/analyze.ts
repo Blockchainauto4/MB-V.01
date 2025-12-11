@@ -38,7 +38,7 @@ const analysisSchema = {
     bestColors: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 3 color categories that suit this person." },
     hairSuggestion: { type: Type.STRING, description: "A specific hair color or cut suggestion." },
     reasoning: { type: Type.STRING, description: "Why this suggestion works based on Visagismo principles." },
-    imageGenerationPrompt: { type: Type.STRING, description: "A highly detailed, photorealistic prompt for DALL-E 3. It MUST describe the person's physical facial features (approximate age, skin texture, eye shape, face shape, lips) AND the NEW suggested hairstyle. Format: 'A photorealistic portrait of a [age] year old woman/man with [skin tone], [face shape], [eye color] eyes... wearing [suggested hairstyle]'." }
+    imageGenerationPrompt: { type: Type.STRING, description: "A highly detailed English prompt for an AI image generator to create a photorealistic portrait of this person with the suggested hairstyle. CRITICAL: You MUST describe the person's existing facial features (eye shape/color, nose shape, lip shape, skin texture, age, ethnicity) in extreme detail to ensure the generated face looks exactly like them. Do not change their facial features, only the hair." }
   },
   required: ["faceShape", "skinTone", "eyeColor", "bestColors", "hairSuggestion", "reasoning", "imageGenerationPrompt"]
 };
@@ -54,7 +54,7 @@ const analyzeFace = async (base64Image: string, language: string): Promise<Visag
     contents: {
       parts: [
         { inlineData: { mimeType: 'image/jpeg', data: cleanBase64 } },
-        { text: `Analyze this face for a professional Visagismo consultation. Identify the face shape, skin tone, and suggest the best hair transformation. Return the response in JSON. IMPORTANT: All text fields (faceShape, skinTone, hairSuggestion, reasoning) MUST be in ${targetLang}. The 'imageGenerationPrompt' MUST be in English and serve as a full visual description of the person with the NEW hair style.` }
+        { text: `Analyze this face for a professional Visagismo consultation. Identify the face shape, skin tone, and suggest the best hair transformation. Return the response in JSON. IMPORTANT: All text fields (faceShape, skinTone, hairSuggestion, reasoning) MUST be in ${targetLang}. The 'imageGenerationPrompt' must remain in English.` }
       ]
     },
     config: {
@@ -81,7 +81,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing imageBase64 in request body.' });
     }
 
-    // 1. Analyze the face ONLY (Image generation is now handled by /api/generate-final-image)
+    // 1. Analyze the face ONLY (Image generation is now handled by /api/generate-style)
     const analysis = await analyzeFace(imageBase64, language || 'en');
 
     res.status(200).json({ analysis });
