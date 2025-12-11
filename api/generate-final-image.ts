@@ -13,44 +13,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing prompt in request body.' });
     }
 
-    // PRIORITY: 
-    // 1. User provided key (from frontend/localStorage)
-    // 2. Admin Global Key (from Vercel Environment Variables)
-    const keyToUse = apiKey || process.env.ADMIN_OPENAI_KEY;
+    // Use passed key or server environment variable
+    const keyToUse = apiKey || process.env.OPENAI_API_KEY;
 
     if (!keyToUse) {
       return res.status(401).json({ 
         error: 'No API Key available.', 
-        details: 'User has not provided a key and no Global Admin Key is configured.' 
+        details: 'System is missing API Key configuration.' 
       });
     }
 
-    // Using DALL-E 2 as requested
-    const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${keyToUse}`,
-      },
-      body: JSON.stringify({
-        model: "dall-e-2", 
-        prompt: `Professional portrait photography, 8k resolution, photorealistic. ${prompt}`,
-        n: 1,
-        size: "1024x1024",
-        // DALL-E 2 does not support 'quality' or 'style' params
-        response_format: 'b64_json',
-      }),
+    // Call OpenAI DALL-E 3 API
+    // DALL-E 3 does not support 'edits' (inpainting) via API yet, so we use Generation with a highly specific prompt.
+    // This is the most reliable way to use "Only OpenAI" to get a high quality result.
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${keyToUse}`
+        },
+        body: JSON.stringify({
+            model: "dall-e-3",
+            prompt: `Professional portrait photography, 8k resolution, highly detailed, photorealistic. ${prompt}`,
+            n: 1,
+            size: "1024x1024",
+            response_format: "b64_json",
+            quality: "standard"
+        })
     });
-    
-    if (!openaiResponse.ok) {
-        const errorData = await openaiResponse.json();
-        console.error('OpenAI API Error:', errorData);
-        throw new Error(errorData.error?.message || 'Failed to generate image with DALL-E 2.');
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error('OpenAI Error:', errorData);
+        throw new Error(errorData.error?.message || 'OpenAI API Error');
     }
 
-    const data = await openaiResponse.json();
-    const imageB64 = data.data[0].b64_json;
-    const finalImage = `data:image/png;base64,${imageB64}`;
+    const data = await response.json();
+    
+    if (!data.data || !data.data[0] || !data.data[0].b64_json) {
+        throw new Error("Invalid response format from OpenAI.");
+    }
+
+    const finalImage = `data:image/png;base64,${data.data[0].b64_json}`;
 
     res.status(200).json({ finalImage });
 
