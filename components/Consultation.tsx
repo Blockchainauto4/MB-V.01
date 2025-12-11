@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, Language } from '../types';
 import { Logo } from './Logo';
 import { PreviewGallery } from './PreviewGallery';
+import { FormulaCard } from './FormulaCard';
 import { logger } from '../services/logger';
 
 interface ConsultationProps {
@@ -47,6 +48,9 @@ const TEXTS: Record<Language, {
   generatingFinal: string;
   errorFinal: string;
   noApiKey: string;
+  getFormula: string;
+  generatingFormula: string;
+  formulaError: string;
 }> = {
   en: {
     welcome: "Welcome to Beatriz Bittencourt Professional. I am your Visagismo expert. Start a video analysis to find your perfect match, or chat with me directly.",
@@ -87,6 +91,9 @@ const TEXTS: Record<Language, {
     generatingFinal: "Generating final image...",
     errorFinal: "Failed to generate the final image.",
     noApiKey: "Service Mode not active. Please add your own Key in Guides, or contact Admin.",
+    getFormula: "Get Technical Recipe",
+    generatingFormula: "Calculating chemical formula...",
+    formulaError: "Could not generate technical formula."
   },
   pt: {
     welcome: "Bem-vindo à Beatriz Bittencourt Professional. Sou sua especialista em Visagismo. Comece uma análise de vídeo para encontrar sua combinação perfeita ou converse comigo diretamente.",
@@ -127,6 +134,9 @@ const TEXTS: Record<Language, {
     generatingFinal: "Gerando imagem final...",
     errorFinal: "Falha ao gerar a imagem final.",
     noApiKey: "Modo Serviço inativo. Adicione sua chave em Guias ou contate o Admin.",
+    getFormula: "Gerar Receita Técnica",
+    generatingFormula: "Calculando fórmula química...",
+    formulaError: "Não foi possível gerar a fórmula técnica."
   },
   es: {
     welcome: "Bienvenido a Beatriz Bittencourt Professional. Soy tu experta en Visagismo. Inicia un análisis de video para encontrar tu tono perfecto o chatea conmigo.",
@@ -167,6 +177,9 @@ const TEXTS: Record<Language, {
     generatingFinal: "Generando imagen final...",
     errorFinal: "Error al generar la imagen final.",
     noApiKey: "Modo Servicio inactivo. Añade tu clave en Guías o contacta al Admin.",
+    getFormula: "Obtener Receta Técnica",
+    generatingFormula: "Calculando fórmula química...",
+    formulaError: "No se pudo generar la fórmula técnica."
   },
   de: {
     welcome: "Willkommen bei Beatriz Bittencourt Professional. Ich bin Ihr Visagismus-Experte. Starten Sie eine Videoanalyse oder chatten Sie direkt mit mir.",
@@ -207,6 +220,9 @@ const TEXTS: Record<Language, {
     generatingFinal: "Endgültiges Bild wird generiert...",
     errorFinal: "Fehler beim Generieren des endgültigen Bildes.",
     noApiKey: "Service-Modus inaktiv. Fügen Sie Ihren Schlüssel in Guides hinzu.",
+    getFormula: "Technisches Rezept Erhalten",
+    generatingFormula: "Chemische Formel wird berechnet...",
+    formulaError: "Technische Formel konnte nicht erstellt werden."
   },
   fr: {
     welcome: "Bienvenue chez Beatriz Bittencourt Professional. Je suis votre expert en Visagisme. Commencez une analyse vidéo ou discutez avec moi.",
@@ -247,6 +263,9 @@ const TEXTS: Record<Language, {
     generatingFinal: "Génération de l'image finale...",
     errorFinal: "Échec de la génération de l'image finale.",
     noApiKey: "Mode Service inactif. Ajoutez votre clé dans Guides ou contactez l'Admin.",
+    getFormula: "Obtenir Recette Technique",
+    generatingFormula: "Calcul de la formule chimique...",
+    formulaError: "Impossible de générer la formule technique."
   },
   it: {
     welcome: "Benvenuto in Beatriz Bittencourt Professional. Sono il tuo esperto di Visagismo. Inizia un'analisi video o chatta con me.",
@@ -287,6 +306,9 @@ const TEXTS: Record<Language, {
     generatingFinal: "Generazione immagine finale...",
     errorFinal: "Impossibile generare l'immagine finale.",
     noApiKey: "Modalità Servizio inattiva. Aggiungi la tua chiave in Guide.",
+    getFormula: "Ottieni Ricetta Tecnica",
+    generatingFormula: "Calcolo formula chimica...",
+    formulaError: "Impossibile generare formula tecnica."
   }
 };
 
@@ -302,6 +324,9 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
   // Track the active prompt and active generated image for refinement
   const [activePrompt, setActivePrompt] = useState<string | null>(null);
   const [activeGeneratedImageSrc, setActiveGeneratedImageSrc] = useState<string | null>(null);
+  
+  // Track the original user selfie for formula comparison
+  const [userOriginalSelfie, setUserOriginalSelfie] = useState<string | null>(null);
   
   // Camera States
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -350,6 +375,11 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
   const handleSend = async () => {
     if ((!input.trim() && !selectedImage) || loading) return;
+
+    // Capture user selfie if it's the first image uploaded in this flow
+    if (selectedImage && !userOriginalSelfie) {
+        setUserOriginalSelfie(selectedImage);
+    }
 
     const userMsg: ChatMessage = { role: 'user', text: input, image: selectedImage || undefined };
     const currentMessages = [...messages, userMsg];
@@ -465,6 +495,9 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       stopCamera();
       logger.info('ui', 'Image captured and resized', { width, height });
       
+      // Store original selfie for formula calculation later
+      setUserOriginalSelfie(imageBase64);
+
       // Add prompt immediately
       const userMsg: ChatMessage = { role: 'user', text: t.analyzeCommand, image: imageBase64 };
       setMessages(prev => [...prev, userMsg]);
@@ -568,6 +601,43 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             role: 'model', 
             text: "Could not generate preview image. Please use 'Regenerate' to try again." 
         }]);
+    } finally {
+        setLoading(false);
+        setLoadingText('');
+    }
+  };
+
+  const handleGenerateFormula = async (targetImage: string) => {
+    setLoading(true);
+    setLoadingText(t.generatingFormula);
+    logger.info('api', 'Generating technical formula');
+
+    try {
+        const response = await fetch('/api/generate-formula', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                currentImage: userOriginalSelfie,
+                targetImage: targetImage,
+                language: language
+            })
+        });
+
+        if (!response.ok) throw new Error('Formula API failed');
+
+        const { formula } = await response.json();
+        
+        // Add formula to chat
+        setMessages(prev => [...prev, {
+            role: 'model',
+            text: '',
+            formula: formula
+        }]);
+
+    } catch (error: any) {
+        console.error("Formula Error", error);
+        logger.error('api', 'Formula generation failed', error.message);
+        setMessages(prev => [...prev, { role: 'model', text: t.formulaError }]);
     } finally {
         setLoading(false);
         setLoadingText('');
@@ -729,7 +799,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
   if (!started) {
     return (
-      <div className="flex flex-col h-full items-center justify-center px-6 text-center animate-fade-in pb-24">
+      <div className="flex flex-col h-full items-center justify-center px-6 text-center animate-fade-in pb-8">
         <div className="mb-12 animate-slide-up">
             <Logo size="lg" />
         </div>
@@ -775,9 +845,9 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] pb-4 pt-4">
+    <div className="flex flex-col h-full relative">
         {/* Top Bar for Consultation */}
-        <div className="px-4 mb-4 border-b border-gray-800 pb-4 flex justify-between items-center bg-black z-10 animate-slide-up">
+        <div className="px-4 py-4 border-b border-gray-800 flex justify-between items-center bg-black z-10 animate-slide-up flex-shrink-0">
             <h2 className="text-lg font-bold">{t.consultationTitle}</h2>
             <div className="flex gap-4">
               <button onClick={startCamera} className="text-xs uppercase text-white border border-white px-3 py-1 hover:bg-white hover:text-black transition-colors">
@@ -787,14 +857,16 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             </div>
         </div>
 
-        {/* Gallery Strip - Shows only if there are generated images */}
-        <PreviewGallery 
-            images={generatedHistory} 
-            onSelect={handleGallerySelect} 
-            selectedImageSrc={activeGeneratedImageSrc} 
-        />
+        {/* Gallery Strip */}
+        <div className="flex-shrink-0">
+          <PreviewGallery 
+              images={generatedHistory} 
+              onSelect={handleGallerySelect} 
+              selectedImageSrc={activeGeneratedImageSrc} 
+          />
+        </div>
 
-      <div className="flex-1 overflow-y-auto px-4 space-y-6 pt-4">
+      <div className="flex-1 overflow-y-auto px-4 space-y-6 pt-4 scrollbar-hide">
         {messages.map((msg, index) => (
           <div 
             key={index} 
@@ -843,6 +915,16 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
                           className="w-full h-auto cursor-pointer" 
                           onClick={() => !msg.isFinalImage && handleGallerySelect(msg.originalPrompt || "", msg.generatedImage!)}
                       />
+                      {/* Formula Button */}
+                      {!msg.isFinalImage && !msg.formula && (
+                          <button 
+                             onClick={(e) => { e.stopPropagation(); handleGenerateFormula(msg.generatedImage!); }}
+                             className="absolute bottom-2 left-2 bg-black/60 backdrop-blur border border-gray-600 text-white text-[9px] uppercase px-3 py-1 hover:bg-white hover:text-black transition-colors"
+                          >
+                             {t.getFormula}
+                          </button>
+                      )}
+                      
                       {msg.isFinalImage && (
                         <a 
                           href={msg.generatedImage}
@@ -859,7 +941,11 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
                </div>
             )}
 
-            {(msg.text || (!msg.image && !msg.analysis && !msg.generatedImage)) && (
+            {msg.formula && (
+                <FormulaCard formula={msg.formula} />
+            )}
+
+            {(msg.text || (!msg.image && !msg.analysis && !msg.generatedImage && !msg.formula)) && (
               <div 
                 className={`max-w-[85%] p-4 text-sm leading-relaxed ${
                   msg.role === 'user' 
@@ -867,7 +953,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
                     : 'bg-[#1a1a1a] text-gray-100 border border-gray-800'
                 }`}
               >
-                  {msg.role === 'model' && !msg.analysis && !msg.generatedImage && (
+                  {msg.role === 'model' && !msg.analysis && !msg.generatedImage && !msg.formula && (
                       <div className="mb-2 text-[10px] uppercase tracking-widest text-gray-500">{t.expert}</div>
                   )}
                 {msg.text}
@@ -892,7 +978,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
         {/* Refinement Controls - Fixed at bottom above input */}
         {activePrompt && !loading && (
-            <div className="bg-[#0a0a0a] p-3 border-t border-gray-900 mx-4 mb-2 space-y-3 animate-slide-up">
+            <div className="bg-[#0a0a0a] p-3 border-t border-gray-900 mx-4 mb-2 mt-2 space-y-3 animate-slide-up flex-shrink-0 rounded-t-lg border-x">
                 {/* Adjustments Section */}
                 <div>
                     <div className="text-[9px] text-gray-500 uppercase tracking-widest text-center mb-2">{t.refine}</div>
@@ -932,7 +1018,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             </div>
         )}
 
-      <div className="p-4 border-t border-gray-800 bg-black">
+      <div className="p-4 border-t border-gray-800 bg-black flex-shrink-0 z-10">
         {selectedImage && (
           <div className="mb-2 relative inline-block animate-slide-up">
              <img src={selectedImage} alt="Preview" className="h-16 w-auto border border-gray-700 rounded" />
@@ -966,7 +1052,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder={t.placeholder}
-            className="flex-1 bg-[#1a1a1a] border border-gray-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors"
+            className="flex-1 min-w-0 bg-[#1a1a1a] border border-gray-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors"
           />
           <button 
             onClick={handleSend}

@@ -8,7 +8,7 @@ interface BottomNavProps {
 
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) => {
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-black border-t border-gray-900 z-40">
+    <div className="w-full bg-black border-t border-gray-900 z-40 flex-shrink-0">
       <div className="flex justify-between items-center h-20 px-6 max-w-md mx-auto">
         <button
           onClick={() => onTabChange(Tab.CONSULTATION)}

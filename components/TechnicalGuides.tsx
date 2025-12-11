@@ -42,6 +42,7 @@ const TEXTS: Record<Language, {
   logsDesc: string;
   logsBtn: string;
   adminNote: string;
+  getKey: string;
 }> = {
   en: {
     title: "Technical guides.",
@@ -70,6 +71,7 @@ const TEXTS: Record<Language, {
     logsDesc: "View client-side application logs, errors, and API activity.",
     logsBtn: "Open Logs Dashboard",
     adminNote: "Admin Tip: Add 'ADMIN_OPENAI_KEY', 'ADMIN_OPENROUTER_KEY', or 'ADMIN_SILICONFLOW_KEY' to Vercel Env Vars.",
+    getKey: "Get your key here",
   },
   pt: {
     title: "Guias Técnicos.",
@@ -98,6 +100,7 @@ const TEXTS: Record<Language, {
     logsDesc: "Visualize logs da aplicação, erros e atividade da API.",
     logsBtn: "Abrir Painel de Logs",
     adminNote: "Dica Admin: Adicione chaves no Vercel para acesso global.",
+    getKey: "Obtenha sua chave aqui",
   },
   es: {
     title: "Guías Técnicas.",
@@ -126,6 +129,7 @@ const TEXTS: Record<Language, {
     logsDesc: "Ver registros de la aplicación, errores y actividad de API.",
     logsBtn: "Abrir Panel de Registros",
     adminNote: "Tip Admin: Añade chaves en Vercel para acceso global.",
+    getKey: "Obtén tu clave aquí",
   },
   de: {
     title: "Technische Anleitungen.",
@@ -154,6 +158,7 @@ const TEXTS: Record<Language, {
     logsDesc: "Anwendungsprotokolle, Fehler und API-Aktivitäten anzeigen.",
     logsBtn: "Protokolle Öffnen",
     adminNote: "Admin-Tipp: Fügen Sie Schlüssel in Vercel hinzu.",
+    getKey: "Holen Sie sich Ihren Schlüssel hier",
   },
   fr: {
     title: "Guides Techniques.",
@@ -182,6 +187,7 @@ const TEXTS: Record<Language, {
     logsDesc: "Voir les journaux d'application, erreurs et activité API.",
     logsBtn: "Ouvrir le Tableau de Bord",
     adminNote: "Astuce Admin : Ajoutez des clés dans Vercel.",
+    getKey: "Obtenez votre clé ici",
   },
   it: {
     title: "Guide Tecniche.",
@@ -210,6 +216,7 @@ const TEXTS: Record<Language, {
     logsDesc: "Visualizza log applicazione, errori e attività API.",
     logsBtn: "Apri Dashboard Log",
     adminNote: "Suggerimento Admin: Aggiungi le chiavi su Vercel.",
+    getKey: "Ottieni la tua chiave qui",
   }
 };
 
@@ -339,7 +346,15 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
       {/* OpenAI Section */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-2">{t.openaiTitle}</h2>
-        <p className="text-gray-400 mb-6 text-sm">{t.openaiDesc}</p>
+        <p className="text-gray-400 mb-2 text-sm">{t.openaiDesc}</p>
+        <a 
+          href="https://platform.openai.com/api-keys" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="inline-block text-[10px] text-gray-500 hover:text-white underline mb-4 transition-colors"
+        >
+          {t.getKey} &rarr;
+        </a>
         <div className="flex flex-col gap-2">
             <input 
                 type="password"
@@ -369,7 +384,15 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
       {/* OpenRouter Section */}
       <div className="mb-8 border-t border-gray-800 pt-8">
         <h2 className="text-2xl font-bold mb-2">{t.openRouterTitle}</h2>
-        <p className="text-gray-400 mb-6 text-sm">{t.openRouterDesc}</p>
+        <p className="text-gray-400 mb-2 text-sm">{t.openRouterDesc}</p>
+        <a 
+          href="https://openrouter.ai/keys" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="inline-block text-[10px] text-gray-500 hover:text-white underline mb-4 transition-colors"
+        >
+          {t.getKey} &rarr;
+        </a>
         <div className="flex flex-col gap-2">
             <input 
                 type="password"
@@ -399,7 +422,15 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
       {/* SiliconFlow Section */}
       <div className="mb-12 border-t border-gray-800 pt-8">
         <h2 className="text-2xl font-bold mb-2">{t.siliconFlowTitle}</h2>
-        <p className="text-gray-400 mb-6 text-sm">{t.siliconFlowDesc}</p>
+        <p className="text-gray-400 mb-2 text-sm">{t.siliconFlowDesc}</p>
+        <a 
+          href="https://cloud.siliconflow.cn/account/ak" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="inline-block text-[10px] text-gray-500 hover:text-white underline mb-4 transition-colors"
+        >
+          {t.getKey} &rarr;
+        </a>
         <div className="flex flex-col gap-2">
             <input 
                 type="password"
