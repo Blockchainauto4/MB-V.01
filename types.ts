@@ -39,7 +39,8 @@ export enum Tab {
   CONSULTATION = 'Consultation',
   EXPLORE = 'Explore',
   CATALOGUE = 'Catalogue',
-  WEDDING = 'Bridal'
+  WEDDING = 'Bridal',
+  LOGS = 'SystemLogs'
 }
 
 export type Language = 'en' | 'pt' | 'es' | 'de' | 'fr' | 'it';

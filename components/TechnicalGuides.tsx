@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Language } from '../types';
+import { Language, Tab } from '../types';
+import { logger } from '../services/logger';
 
 interface TechnicalGuidesProps {
   language: Language;
+  onNavigate?: (tab: Tab) => void;
 }
 
 const GUIDES = [
@@ -30,6 +32,9 @@ const TEXTS: Record<Language, {
   clearKey: string;
   keySaved: string;
   keyCleared: string;
+  logsTitle: string;
+  logsDesc: string;
+  logsBtn: string;
 }> = {
   en: {
     title: "Technical guides.",
@@ -48,6 +53,9 @@ const TEXTS: Record<Language, {
     clearKey: "Clear Key",
     keySaved: "API Key saved!",
     keyCleared: "API Key cleared.",
+    logsTitle: "System Logs",
+    logsDesc: "View client-side application logs, errors, and API activity.",
+    logsBtn: "Open Logs Dashboard",
   },
   pt: {
     title: "Guias Técnicos.",
@@ -66,6 +74,9 @@ const TEXTS: Record<Language, {
     clearKey: "Limpar Chave",
     keySaved: "Chave de API salva!",
     keyCleared: "Chave de API removida.",
+    logsTitle: "Logs do Sistema",
+    logsDesc: "Visualize logs da aplicação, erros e atividade da API.",
+    logsBtn: "Abrir Painel de Logs",
   },
   es: {
     title: "Guías Técnicas.",
@@ -84,6 +95,9 @@ const TEXTS: Record<Language, {
     clearKey: "Borrar Clave",
     keySaved: "¡Clave de API guardada!",
     keyCleared: "Clave de API eliminada.",
+    logsTitle: "Registros del Sistema",
+    logsDesc: "Ver registros de la aplicación, errores y actividad de API.",
+    logsBtn: "Abrir Panel de Registros",
   },
   de: {
     title: "Technische Anleitungen.",
@@ -102,6 +116,9 @@ const TEXTS: Record<Language, {
     clearKey: "Schlüssel Löschen",
     keySaved: "API-Schlüssel gespeichert!",
     keyCleared: "API-Schlüssel gelöscht.",
+    logsTitle: "Systemprotokolle",
+    logsDesc: "Anwendungsprotokolle, Fehler und API-Aktivitäten anzeigen.",
+    logsBtn: "Protokolle Öffnen",
   },
   fr: {
     title: "Guides Techniques.",
@@ -120,6 +137,9 @@ const TEXTS: Record<Language, {
     clearKey: "Effacer la Clé",
     keySaved: "Clé API enregistrée !",
     keyCleared: "Clé API effacée.",
+    logsTitle: "Journaux Système",
+    logsDesc: "Voir les journaux d'application, erreurs et activité API.",
+    logsBtn: "Ouvrir le Tableau de Bord",
   },
   it: {
     title: "Guide Tecniche.",
@@ -138,10 +158,13 @@ const TEXTS: Record<Language, {
     clearKey: "Cancella Chiave",
     keySaved: "Chiave API salvata!",
     keyCleared: "Chiave API cancellata.",
+    logsTitle: "Log di Sistema",
+    logsDesc: "Visualizza log applicazione, errori e attività API.",
+    logsBtn: "Apri Dashboard Log",
   }
 };
 
-export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) => {
+export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNavigate }) => {
     const t = TEXTS[language];
     const [dbStatus, setDbStatus] = useState<string | null>(null);
     const [isCheckingDb, setIsCheckingDb] = useState(false);
@@ -158,6 +181,7 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) =>
     const handleSaveKey = () => {
         localStorage.setItem('openai_api_key', openAIKey);
         setKeyStatus(t.keySaved);
+        logger.success('auth', 'User updated OpenAI API Key manually.');
         setTimeout(() => setKeyStatus(''), 2000);
     };
 
@@ -165,23 +189,27 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) =>
         localStorage.removeItem('openai_api_key');
         setOpenAIKey('');
         setKeyStatus(t.keyCleared);
+        logger.warn('auth', 'User cleared OpenAI API Key.');
         setTimeout(() => setKeyStatus(''), 2000);
     };
 
     const checkDbConnection = async () => {
         setIsCheckingDb(true);
         setDbStatus(t.checking);
+        logger.info('system', 'Checking Database Connection...');
         try {
             const response = await fetch('/api/db-status');
             const data = await response.json();
             if (response.ok) {
                 const date = new Date(data.dbTime).toLocaleString();
                 setDbStatus(`Connection successful.\nDatabase time: ${date}`);
+                logger.success('system', 'Database connection successful', data);
             } else {
                 throw new Error(data.error || 'An unknown error occurred.');
             }
         } catch (error: any) {
             setDbStatus(`Connection failed:\n${error.message}`);
+            logger.error('system', 'Database connection failed', error.message);
         }
         setIsCheckingDb(false);
     };
@@ -203,6 +231,17 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) =>
                 </div>
             ))}
         </div>
+      </div>
+
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold mb-2">{t.logsTitle}</h2>
+        <p className="text-gray-400 mb-6 text-sm">{t.logsDesc}</p>
+        <button
+            onClick={() => onNavigate && onNavigate(Tab.LOGS)}
+            className="w-full bg-[#1a1a1a] border border-gray-800 text-white font-bold uppercase py-4 px-8 text-xs tracking-wider hover:bg-gray-800 hover:border-white transition-colors"
+        >
+            {t.logsBtn}
+        </button>
       </div>
       
       <div className="mb-12">
