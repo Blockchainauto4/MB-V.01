@@ -1030,7 +1030,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
              </button>
           </div>
         )}
-        <div className="flex gap-2 items-end">
+        <div className="flex gap-2 items-stretch h-12">
           <input 
             type="file" 
             ref={fileInputRef}
@@ -1040,7 +1040,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
           />
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="p-3 bg-[#1a1a1a] border border-gray-800 text-gray-400 hover:text-white hover:border-white transition-colors"
+            className="w-12 flex items-center justify-center bg-[#1a1a1a] border border-gray-800 text-gray-400 hover:text-white hover:border-white transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
@@ -1052,12 +1052,12 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder={t.placeholder}
-            className="flex-1 min-w-0 bg-[#1a1a1a] border border-gray-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors"
+            className="flex-1 min-w-0 bg-[#1a1a1a] border border-gray-800 text-white px-4 text-sm focus:outline-none focus:border-white transition-colors"
           />
           <button 
             onClick={handleSend}
             disabled={(!input.trim() && !selectedImage) || loading}
-            className="bg-white text-black px-6 py-3 font-bold uppercase text-xs tracking-wider disabled:opacity-50 hover:bg-gray-200 transition-colors h-full"
+            className="bg-white text-black px-6 font-bold uppercase text-xs tracking-wider disabled:opacity-50 hover:bg-gray-200 transition-colors flex items-center justify-center"
           >
             {t.send}
           </button>

@@ -41,8 +41,11 @@ const App: React.FC = () => {
     }
   };
 
+  // Determine if main should scroll or if component handles it (Consultation)
+  const isConsultation = activeTab === Tab.CONSULTATION;
+
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black overflow-hidden relative">
+    <div className="min-h-[100dvh] bg-black text-white selection:bg-white selection:text-black overflow-hidden relative">
       {/* Top Header - Visible on all tabs except Consultation when started (handled internally) */}
       <div className="absolute top-0 left-0 w-full p-4 flex justify-center z-30 pointer-events-none">
         <div className="opacity-0"> 
@@ -50,17 +53,19 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-md mx-auto h-screen relative bg-black shadow-2xl overflow-hidden flex flex-col">
+      <div className="max-w-md mx-auto h-[100dvh] relative bg-black shadow-2xl overflow-hidden flex flex-col">
         
         {/* Top Branding Bar */}
         {activeTab !== Tab.LOGS && (
-          <div className="pt-8 pb-2 flex justify-center border-b border-gray-900/50 bg-black/80 backdrop-blur-sm sticky top-0 z-20">
+          <div className="pt-8 pb-2 flex justify-center border-b border-gray-900/50 bg-black/80 backdrop-blur-sm sticky top-0 z-20 flex-shrink-0">
               <Logo size="sm" />
           </div>
         )}
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto scrollbar-hide">
+        <main 
+          className={`flex-1 ${isConsultation ? 'overflow-hidden' : 'overflow-y-auto scrollbar-hide'}`}
+        >
           {renderContent()}
         </main>
 
