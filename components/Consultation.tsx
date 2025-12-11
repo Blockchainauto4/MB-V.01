@@ -39,7 +39,6 @@ const TEXTS: Record<Language, {
   longer: string;
   refine: string;
   finalize: string;
-  finalizeStandard: string;
   finalImage: string;
   generatingFinal: string;
   errorFinal: string;
@@ -76,8 +75,7 @@ const TEXTS: Record<Language, {
     shorter: "Shorter",
     longer: "Longer",
     refine: "Refine Look",
-    finalize: "Generate HD Portrait",
-    finalizeStandard: "Fast Preview",
+    finalize: "Generate Final Look",
     finalImage: "Final Image",
     generatingFinal: "Generating final image...",
     errorFinal: "Failed to generate the final image.",
@@ -114,8 +112,7 @@ const TEXTS: Record<Language, {
     shorter: "Mais Curto",
     longer: "Mais Longo",
     refine: "Refinar Visual",
-    finalize: "Gerar Foto HD",
-    finalizeStandard: "Prévia Rápida",
+    finalize: "Gerar Resultado Final",
     finalImage: "Imagem Final",
     generatingFinal: "Gerando imagem final...",
     errorFinal: "Falha ao gerar a imagem final.",
@@ -152,8 +149,7 @@ const TEXTS: Record<Language, {
     shorter: "Más Corto",
     longer: "Más Largo",
     refine: "Refinar Look",
-    finalize: "Generar Foto HD",
-    finalizeStandard: "Vista Rápida",
+    finalize: "Generar Resultado Final",
     finalImage: "Imagen Final",
     generatingFinal: "Generando imagen final...",
     errorFinal: "Error al generar la imagen final.",
@@ -190,8 +186,7 @@ const TEXTS: Record<Language, {
     shorter: "Kürzer",
     longer: "Länger",
     refine: "Verfeinern",
-    finalize: "HD-Porträt",
-    finalizeStandard: "Schnellvorschau",
+    finalize: "Endergebnis Generieren",
     finalImage: "Endgültiges Bild",
     generatingFinal: "Endgültiges Bild wird generiert...",
     errorFinal: "Fehler beim Generieren des endgültigen Bildes.",
@@ -228,8 +223,7 @@ const TEXTS: Record<Language, {
     shorter: "Plus Court",
     longer: "Plus Long",
     refine: "Affiner",
-    finalize: "Portrait HD",
-    finalizeStandard: "Aperçu Rapide",
+    finalize: "Générer Résultat Final",
     finalImage: "Image Finale",
     generatingFinal: "Génération de l'image finale...",
     errorFinal: "Échec de la génération de l'image finale.",
@@ -266,8 +260,7 @@ const TEXTS: Record<Language, {
     shorter: "Più Corto",
     longer: "Più Lungo",
     refine: "Raffina",
-    finalize: "Ritratto HD",
-    finalizeStandard: "Anteprima Veloce",
+    finalize: "Genera Risultato Finale",
     finalImage: "Immagine Finale",
     generatingFinal: "Generazione immagine finale...",
     errorFinal: "Impossibile generare l'immagine finale.",
@@ -535,79 +528,58 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     }
   };
 
-  const handleFinalize = async () => {
+  const handleUnifiedFinalize = async () => {
     // Check local storage OR proceed if admin key might be configured on server
     const apiKey = localStorage.getItem('hq_api_key') || localStorage.getItem('openai_api_key');
     if (!activePrompt) return;
 
     setLoading(true);
     setLoadingText(t.generatingFinal);
-    logger.info('api', 'Starting High Quality finalization');
+    logger.info('api', 'Starting Finalization (Unified)');
 
     try {
+      // 1. Try High Quality Generation first
       const response = await fetch('/api/generate-final-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: activePrompt, apiKey: apiKey }), // apiKey can be null
       });
 
-      if (response.status === 401) {
-          alert(t.noApiKey);
-          setLoading(false);
-          setLoadingText('');
-          return;
+      if (response.ok) {
+        // Success with HQ
+        const { finalImage } = await response.json();
+        logger.success('api', 'HQ image generated');
+        setMessages(prev => [...prev, {
+            role: 'model',
+            text: '',
+            generatedImage: finalImage,
+            isFinalImage: true
+        }]);
+      } else {
+        // 2. Fallback to Standard/Economy Generation
+        logger.warn('api', `HQ generation unavailable (${response.status}), attempting fallback.`);
+        
+        const fallbackResponse = await fetch('/api/generate-style', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: activePrompt }), 
+        });
+
+        if (!fallbackResponse.ok) throw new Error('Failed to generate final image (fallback also failed).');
+
+        const { generatedImage } = await fallbackResponse.json();
+        logger.success('api', 'Standard finalization successful (Fallback)');
+        setMessages(prev => [...prev, {
+            role: 'model',
+            text: '',
+            generatedImage: generatedImage,
+            isFinalImage: true
+        }]);
       }
 
-      if (!response.ok) throw new Error('Failed to generate final image.');
-      
-      const { finalImage } = await response.json();
-      logger.success('api', 'HQ image generated');
-      setMessages(prev => [...prev, {
-        role: 'model',
-        text: '',
-        generatedImage: finalImage,
-        isFinalImage: true
-      }]);
-
     } catch (error: any) {
-      console.error("HQ Gen Error:", error);
-      logger.error('api', 'HQ generation failed', error.message);
-      setMessages(prev => [...prev, { role: 'model', text: t.errorFinal }]);
-    } finally {
-      setLoading(false);
-      setLoadingText('');
-    }
-  };
-
-  const handleFinalizeEconomy = async () => {
-    if (!activePrompt) return;
-
-    setLoading(true);
-    setLoadingText(t.generatingFinal);
-    logger.info('api', 'Starting Standard finalization');
-
-    try {
-      // Use standard generation endpoint for economy mode
-      const response = await fetch('/api/generate-style', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: activePrompt }), 
-      });
-
-      if (!response.ok) throw new Error('Failed to generate standard final image.');
-
-      const { generatedImage } = await response.json();
-      logger.success('api', 'Standard finalization successful');
-      setMessages(prev => [...prev, {
-        role: 'model',
-        text: '',
-        generatedImage: generatedImage,
-        isFinalImage: true // Treat as final
-      }]);
-
-    } catch (error: any) {
-      console.error("Standard Finalize Error:", error);
-      logger.error('api', 'Standard finalization failed', error.message);
+      console.error("Finalize Error:", error);
+      logger.error('api', 'Finalization failed', error.message);
       setMessages(prev => [...prev, { role: 'model', text: t.errorFinal }]);
     } finally {
       setLoading(false);
@@ -851,16 +823,10 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
                         <button onClick={() => handleRefine('longer')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.longer}</button>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="w-full">
                     <button 
-                      onClick={handleFinalizeEconomy}
-                      className="flex-1 text-[10px] font-bold uppercase bg-gray-800 border border-gray-700 text-white py-3 hover:bg-gray-700 transition-colors"
-                    >
-                        {t.finalizeStandard}
-                    </button>
-                    <button 
-                      onClick={handleFinalize}
-                      className="flex-1 text-[10px] font-bold uppercase bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 hover:opacity-90 transition-opacity"
+                      onClick={handleUnifiedFinalize}
+                      className="w-full text-[10px] font-bold uppercase bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 hover:opacity-90 transition-opacity"
                     >
                         {t.finalize}
                     </button>
