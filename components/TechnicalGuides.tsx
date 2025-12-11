@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Language } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Language, Tab } from '../types';
+import { logger } from '../services/logger';
 
 interface TechnicalGuidesProps {
   language: Language;
+  onNavigate?: (tab: Tab) => void;
 }
 
 const GUIDES = [
@@ -23,6 +25,17 @@ const TEXTS: Record<Language, {
   missingDesc: string;
   buyBtn: string;
   whatsapp: string;
+  hqTitle: string;
+  hqDesc: string;
+  apiKeyPlaceholder: string;
+  saveKey: string;
+  clearKey: string;
+  keySaved: string;
+  keyCleared: string;
+  logsTitle: string;
+  logsDesc: string;
+  logsBtn: string;
+  adminNote: string;
 }> = {
   en: {
     title: "Technical guides.",
@@ -33,7 +46,18 @@ const TEXTS: Record<Language, {
     missingTitle: "Missing products?",
     missingDesc: "Find them all.",
     buyBtn: "Buy Online",
-    whatsapp: "Order via WhatsApp: (11) 99227-9655"
+    whatsapp: "Order via WhatsApp: (11) 99227-9655",
+    hqTitle: "High Quality Image Integration",
+    hqDesc: "Save your OpenAI API key to generate high-quality final images (DALL-E 2). Your key is stored securely in your browser.",
+    apiKeyPlaceholder: "Enter your OpenAI API Key...",
+    saveKey: "Save Key",
+    clearKey: "Clear Key",
+    keySaved: "API Key saved!",
+    keyCleared: "API Key cleared.",
+    logsTitle: "System Logs",
+    logsDesc: "View client-side application logs, errors, and API activity.",
+    logsBtn: "Open Logs Dashboard",
+    adminNote: "Admin Tip: To enable this feature for ALL users (Service Mode), add 'OPENAI_API_KEY' to your Vercel Environment Variables.",
   },
   pt: {
     title: "Guias Técnicos.",
@@ -44,7 +68,18 @@ const TEXTS: Record<Language, {
     missingTitle: "Produtos faltando?",
     missingDesc: "Encontre todos eles.",
     buyBtn: "Comprar Online",
-    whatsapp: "Peça via WhatsApp: (11) 99227-9655"
+    whatsapp: "Peça via WhatsApp: (11) 99227-9655",
+    hqTitle: "Integração Imagem Alta Qualidade",
+    hqDesc: "Salve sua chave de API OpenAI para gerar imagens finais de alta qualidade (DALL-E 2). Sua chave é armazenada com segurança no seu navegador.",
+    apiKeyPlaceholder: "Insira sua chave API OpenAI...",
+    saveKey: "Salvar Chave",
+    clearKey: "Limpar Chave",
+    keySaved: "Chave de API salva!",
+    keyCleared: "Chave de API removida.",
+    logsTitle: "Logs do Sistema",
+    logsDesc: "Visualize logs da aplicação, erros e atividade da API.",
+    logsBtn: "Abrir Painel de Logs",
+    adminNote: "Dica Admin: Para ativar este recurso para TODOS (Modo Serviço), adicione 'OPENAI_API_KEY' nas Variáveis de Ambiente do Vercel.",
   },
   es: {
     title: "Guías Técnicas.",
@@ -55,7 +90,18 @@ const TEXTS: Record<Language, {
     missingTitle: "¿Faltan productos?",
     missingDesc: "Encuéntralos todos.",
     buyBtn: "Comprar en Línea",
-    whatsapp: "Pedir por WhatsApp: (11) 99227-9655"
+    whatsapp: "Pedir por WhatsApp: (11) 99227-9655",
+    hqTitle: "Integración Imagen Alta Calidad",
+    hqDesc: "Guarda tu clave API de OpenAI para generar imágenes finales de alta calidad (DALL-E 2). Tu clave se almacena de forma segura en tu navegador.",
+    apiKeyPlaceholder: "Introduce tu clave API OpenAI...",
+    saveKey: "Guardar Clave",
+    clearKey: "Borrar Clave",
+    keySaved: "¡Clave de API guardada!",
+    keyCleared: "Clave de API eliminada.",
+    logsTitle: "Registros del Sistema",
+    logsDesc: "Ver registros de la aplicación, errores y actividad de API.",
+    logsBtn: "Abrir Panel de Registros",
+    adminNote: "Tip Admin: Para activar esto para TODOS (Modo Servicio), añade 'OPENAI_API_KEY' a tus Variables de Entorno en Vercel.",
   },
   de: {
     title: "Technische Anleitungen.",
@@ -66,7 +112,18 @@ const TEXTS: Record<Language, {
     missingTitle: "Fehlende Produkte?",
     missingDesc: "Finden Sie alle.",
     buyBtn: "Online Kaufen",
-    whatsapp: "Bestellung per WhatsApp: (11) 99227-9655"
+    whatsapp: "Bestellung per WhatsApp: (11) 99227-9655",
+    hqTitle: "Hohe Bildqualität Integration",
+    hqDesc: "Speichern Sie Ihren OpenAI API-Schlüssel, um hochwertige endgültige Bilder zu generieren (DALL-E 2).",
+    apiKeyPlaceholder: "Geben Sie Ihren OpenAI API-Schlüssel ein...",
+    saveKey: "Schlüssel Speichern",
+    clearKey: "Schlüssel Löschen",
+    keySaved: "API-Schlüssel gespeichert!",
+    keyCleared: "API-Schlüssel gelöscht.",
+    logsTitle: "Systemprotokolle",
+    logsDesc: "Anwendungsprotokolle, Fehler und API-Aktivitäten anzeigen.",
+    logsBtn: "Protokolle Öffnen",
+    adminNote: "Admin-Tipp: Um dies für ALLE Benutzer zu aktivieren, fügen Sie 'OPENAI_API_KEY' in Vercel hinzu.",
   },
   fr: {
     title: "Guides Techniques.",
@@ -77,7 +134,18 @@ const TEXTS: Record<Language, {
     missingTitle: "Produits manquants?",
     missingDesc: "Retrouvez-les tous.",
     buyBtn: "Acheter en Ligne",
-    whatsapp: "Commander via WhatsApp: (11) 99227-9655"
+    whatsapp: "Commander via WhatsApp: (11) 99227-9655",
+    hqTitle: "Intégration Image Haute Qualité",
+    hqDesc: "Enregistrez votre clé API OpenAI pour générer des images finales de haute qualité (DALL-E 2).",
+    apiKeyPlaceholder: "Entrez votre clé API OpenAI...",
+    saveKey: "Enregistrer la Clé",
+    clearKey: "Effacer la Clé",
+    keySaved: "Clé API enregistrée !",
+    keyCleared: "Clé API effacée.",
+    logsTitle: "Journaux Système",
+    logsDesc: "Voir les journaux d'application, erreurs et activité API.",
+    logsBtn: "Ouvrir le Tableau de Bord",
+    adminNote: "Astuce Admin : Pour activer pour TOUS, ajoutez 'OPENAI_API_KEY' dans Vercel.",
   },
   it: {
     title: "Guide Tecniche.",
@@ -88,29 +156,70 @@ const TEXTS: Record<Language, {
     missingTitle: "Prodotti mancanti?",
     missingDesc: "Trovali tutti.",
     buyBtn: "Acquista Online",
-    whatsapp: "Ordina via WhatsApp: (11) 99227-9655"
+    whatsapp: "Ordina via WhatsApp: (11) 99227-9655",
+    hqTitle: "Integrazione Immagine Alta Qualità",
+    hqDesc: "Salva la tua chiave API OpenAI per generare immagini finali di alta qualità (DALL-E 2).",
+    apiKeyPlaceholder: "Inserisci la tua chiave API OpenAI...",
+    saveKey: "Salva Chiave",
+    clearKey: "Cancella Chiave",
+    keySaved: "Chiave API salvata!",
+    keyCleared: "Chiave API cancellata.",
+    logsTitle: "Log di Sistema",
+    logsDesc: "Visualizza log applicazione, errori e attività API.",
+    logsBtn: "Apri Dashboard Log",
+    adminNote: "Suggerimento Admin: Per abilitare per TUTTI, aggiungi 'OPENAI_API_KEY' su Vercel.",
   }
 };
 
-export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) => {
+export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNavigate }) => {
     const t = TEXTS[language];
     const [dbStatus, setDbStatus] = useState<string | null>(null);
     const [isCheckingDb, setIsCheckingDb] = useState(false);
+    const [hqKey, setHqKey] = useState('');
+    const [keyStatus, setKeyStatus] = useState('');
+
+    useEffect(() => {
+        // We look for 'hq_api_key' primarily as that is what Consultation.tsx uses
+        const savedKey = localStorage.getItem('hq_api_key') || localStorage.getItem('openai_api_key');
+        if (savedKey) {
+            setHqKey(savedKey);
+        }
+    }, []);
+
+    const handleSaveKey = () => {
+        // Save as 'hq_api_key' so the main app picks it up immediately
+        localStorage.setItem('hq_api_key', hqKey);
+        setKeyStatus(t.keySaved);
+        logger.success('auth', 'User updated HQ (OpenAI) API Key manually.');
+        setTimeout(() => setKeyStatus(''), 2000);
+    };
+
+    const handleClearKey = () => {
+        localStorage.removeItem('hq_api_key');
+        localStorage.removeItem('openai_api_key');
+        setHqKey('');
+        setKeyStatus(t.keyCleared);
+        logger.warn('auth', 'User cleared HQ API Key.');
+        setTimeout(() => setKeyStatus(''), 2000);
+    };
 
     const checkDbConnection = async () => {
         setIsCheckingDb(true);
-        setDbStatus(language === 'pt' ? 'Conectando...' : 'Connecting to database...');
+        setDbStatus(t.checking);
+        logger.info('system', 'Checking Database Connection...');
         try {
             const response = await fetch('/api/db-status');
             const data = await response.json();
             if (response.ok) {
                 const date = new Date(data.dbTime).toLocaleString();
                 setDbStatus(`Connection successful.\nDatabase time: ${date}`);
+                logger.success('system', 'Database connection successful', data);
             } else {
                 throw new Error(data.error || 'An unknown error occurred.');
             }
         } catch (error: any) {
             setDbStatus(`Connection failed:\n${error.message}`);
+            logger.error('system', 'Database connection failed', error.message);
         }
         setIsCheckingDb(false);
     };
@@ -131,6 +240,47 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language }) =>
                     <div className={`absolute bottom-0 left-0 w-full h-1 ${guide.color.replace('border', 'bg')} opacity-40`}></div>
                 </div>
             ))}
+        </div>
+      </div>
+
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold mb-2">{t.logsTitle}</h2>
+        <p className="text-gray-400 mb-6 text-sm">{t.logsDesc}</p>
+        <button
+            onClick={() => onNavigate && onNavigate(Tab.LOGS)}
+            className="w-full bg-[#1a1a1a] border border-gray-800 text-white font-bold uppercase py-4 px-8 text-xs tracking-wider hover:bg-gray-800 hover:border-white transition-colors"
+        >
+            {t.logsBtn}
+        </button>
+      </div>
+      
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold mb-2">{t.hqTitle}</h2>
+        <p className="text-gray-400 mb-6 text-sm">{t.hqDesc}</p>
+        <div className="flex flex-col gap-2">
+            <input 
+                type="password"
+                value={hqKey}
+                onChange={(e) => setHqKey(e.target.value)}
+                placeholder={t.apiKeyPlaceholder}
+                className="bg-[#1a1a1a] border border-gray-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors w-full"
+            />
+            <div className="flex gap-2">
+                <button
+                    onClick={handleSaveKey}
+                    className="flex-1 bg-white text-black font-bold uppercase py-3 px-6 text-xs tracking-wider hover:bg-gray-200 transition-colors"
+                >
+                    {t.saveKey}
+                </button>
+                <button
+                    onClick={handleClearKey}
+                    className="flex-1 border border-gray-800 text-gray-400 font-bold uppercase py-3 px-6 text-xs tracking-wider hover:bg-gray-800 hover:text-white transition-colors"
+                >
+                    {t.clearKey}
+                </button>
+            </div>
+            {keyStatus && <p className="text-green-500 text-xs mt-2">{keyStatus}</p>}
+            <p className="text-gray-600 text-[10px] mt-2 italic">{t.adminNote}</p>
         </div>
       </div>
       
