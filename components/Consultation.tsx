@@ -43,6 +43,7 @@ const TEXTS: Record<Language, {
   finalImage: string;
   generatingFinal: string;
   errorFinal: string;
+  errorStyleGeneration: string;
   noApiKey: string;
 }> = {
   en: {
@@ -80,6 +81,7 @@ const TEXTS: Record<Language, {
     finalImage: "Final Image",
     generatingFinal: "Generating final image...",
     errorFinal: "Failed to generate the final image.",
+    errorStyleGeneration: "Could not generate preview image. Please use 'Regenerate' to try again.",
     noApiKey: "Service Mode not active. Please add your own Key in Guides, or contact Admin.",
   },
   pt: {
@@ -117,6 +119,7 @@ const TEXTS: Record<Language, {
     finalImage: "Imagem Final",
     generatingFinal: "Gerando imagem final...",
     errorFinal: "Falha ao gerar a imagem final.",
+    errorStyleGeneration: "Não foi possível gerar a imagem de prévia. Por favor, use 'Regenerar' para tentar novamente.",
     noApiKey: "Modo Serviço inativo. Adicione sua chave em Guias ou contate o Admin.",
   },
   es: {
@@ -154,6 +157,7 @@ const TEXTS: Record<Language, {
     finalImage: "Imagen Final",
     generatingFinal: "Generando imagen final...",
     errorFinal: "Error al generar la imagen final.",
+    errorStyleGeneration: "No se pudo generar la imagen de vista previa. Usa 'Regenerar' para intentar de nuevo.",
     noApiKey: "Modo Servicio inactivo. Añade tu clave en Guías o contacta al Admin.",
   },
   de: {
@@ -191,6 +195,7 @@ const TEXTS: Record<Language, {
     finalImage: "Endgültiges Bild",
     generatingFinal: "Endgültiges Bild wird generiert...",
     errorFinal: "Fehler beim Generieren des endgültigen Bildes.",
+    errorStyleGeneration: "Vorschaubild konnte nicht generiert werden. Bitte versuchen Sie 'Regenerieren'.",
     noApiKey: "Service-Modus inaktiv. Fügen Sie Ihren Schlüssel in Guides hinzu.",
   },
   fr: {
@@ -228,6 +233,7 @@ const TEXTS: Record<Language, {
     finalImage: "Image Finale",
     generatingFinal: "Génération de l'image finale...",
     errorFinal: "Échec de la génération de l'image finale.",
+    errorStyleGeneration: "Impossible de générer l'image d'aperçu. Veuillez utiliser 'Régénérer'.",
     noApiKey: "Mode Service inactif. Ajoutez votre clé dans Guides ou contactez l'Admin.",
   },
   it: {
@@ -265,6 +271,7 @@ const TEXTS: Record<Language, {
     finalImage: "Immagine Finale",
     generatingFinal: "Generazione immagine finale...",
     errorFinal: "Impossibile generare l'immagine finale.",
+    errorStyleGeneration: "Impossibile generare l'immagine di anteprima. Usa 'Rigenera' per riprovare.",
     noApiKey: "Modalità Servizio inattiva. Aggiungi la tua chiave in Guide.",
   }
 };
@@ -520,7 +527,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         // Display visible error in chat so user knows regeneration is needed
         setMessages(prev => [...prev, { 
             role: 'model', 
-            text: "Could not generate preview image. Please use 'Regenerate' to try again." 
+            text: t.errorStyleGeneration 
         }]);
     } finally {
         setLoading(false);
@@ -530,12 +537,12 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
   const handleFinalize = async () => {
     // Check local storage OR proceed if admin key might be configured on server
-    const apiKey = localStorage.getItem('openai_api_key');
+    const apiKey = localStorage.getItem('hq_api_key') || localStorage.getItem('openai_api_key');
     if (!activePrompt) return;
 
     setLoading(true);
     setLoadingText(t.generatingFinal);
-    logger.info('api', 'Starting DALL-E 3 finalization');
+    logger.info('api', 'Starting High Quality finalization');
 
     try {
       const response = await fetch('/api/generate-final-image', {
@@ -554,7 +561,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       if (!response.ok) throw new Error('Failed to generate final image.');
       
       const { finalImage } = await response.json();
-      logger.success('api', 'DALL-E 3 image generated');
+      logger.success('api', 'HQ image generated');
       setMessages(prev => [...prev, {
         role: 'model',
         text: '',
@@ -563,8 +570,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       }]);
 
     } catch (error: any) {
-      console.error("DALL-E 3 Error:", error);
-      logger.error('api', 'DALL-E 3 generation failed', error.message);
+      console.error("HQ Gen Error:", error);
+      logger.error('api', 'HQ generation failed', error.message);
       setMessages(prev => [...prev, { role: 'model', text: t.errorFinal }]);
     } finally {
       setLoading(false);
