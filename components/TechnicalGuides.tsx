@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Language, Tab } from '../types';
 import { logger } from '../services/logger';
+import { ApiKeyInstructions } from './ApiKeyInstructions';
 
 interface TechnicalGuidesProps {
   language: Language;
@@ -43,6 +44,7 @@ const TEXTS: Record<Language, {
   logsBtn: string;
   adminNote: string;
   getKey: string;
+  helpBtn: string;
 }> = {
   en: {
     title: "Technical guides.",
@@ -72,6 +74,7 @@ const TEXTS: Record<Language, {
     logsBtn: "Open Logs Dashboard",
     adminNote: "Admin Tip: Add 'ADMIN_OPENAI_KEY', 'ADMIN_OPENROUTER_KEY', or 'ADMIN_SILICONFLOW_KEY' to Vercel Env Vars.",
     getKey: "Get your key here",
+    helpBtn: "Guide: How to generate keys",
   },
   pt: {
     title: "Guias Técnicos.",
@@ -101,6 +104,7 @@ const TEXTS: Record<Language, {
     logsBtn: "Abrir Painel de Logs",
     adminNote: "Dica Admin: Adicione chaves no Vercel para acesso global.",
     getKey: "Obtenha sua chave aqui",
+    helpBtn: "Guia: Como gerar chaves",
   },
   es: {
     title: "Guías Técnicas.",
@@ -130,6 +134,7 @@ const TEXTS: Record<Language, {
     logsBtn: "Abrir Panel de Registros",
     adminNote: "Tip Admin: Añade chaves en Vercel para acceso global.",
     getKey: "Obtén tu clave aquí",
+    helpBtn: "Guía: Cómo generar claves",
   },
   de: {
     title: "Technische Anleitungen.",
@@ -159,6 +164,7 @@ const TEXTS: Record<Language, {
     logsBtn: "Protokolle Öffnen",
     adminNote: "Admin-Tipp: Fügen Sie Schlüssel in Vercel hinzu.",
     getKey: "Holen Sie sich Ihren Schlüssel hier",
+    helpBtn: "Anleitung: Schlüssel generieren",
   },
   fr: {
     title: "Guides Techniques.",
@@ -188,6 +194,7 @@ const TEXTS: Record<Language, {
     logsBtn: "Ouvrir le Tableau de Bord",
     adminNote: "Astuce Admin : Ajoutez des clés dans Vercel.",
     getKey: "Obtenez votre clé ici",
+    helpBtn: "Guide : Comment générer des clés",
   },
   it: {
     title: "Guide Tecniche.",
@@ -217,6 +224,7 @@ const TEXTS: Record<Language, {
     logsBtn: "Apri Dashboard Log",
     adminNote: "Suggerimento Admin: Aggiungi le chiavi su Vercel.",
     getKey: "Ottieni la tua chiave qui",
+    helpBtn: "Guida: Come generare chiavi",
   }
 };
 
@@ -224,6 +232,7 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
     const t = TEXTS[language];
     const [dbStatus, setDbStatus] = useState<string | null>(null);
     const [isCheckingDb, setIsCheckingDb] = useState(false);
+    const [showInstructions, setShowInstructions] = useState(false);
     
     // API Keys State
     const [openAIKey, setOpenAIKey] = useState('');
@@ -315,6 +324,8 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
 
   return (
     <div className="pb-24 pt-8 px-4 animate-fade-in">
+      <ApiKeyInstructions isOpen={showInstructions} onClose={() => setShowInstructions(false)} language={language} />
+
       <div className="mb-12">
         <h1 className="text-4xl font-bold mb-8">{t.title}</h1>
         
@@ -341,6 +352,20 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
         >
             {t.logsBtn}
         </button>
+      </div>
+
+      {/* Global API Help Button */}
+      <div className="flex justify-between items-center mb-6 pt-4 border-t border-gray-800">
+         <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">API Configurations</h2>
+         <button 
+           onClick={() => setShowInstructions(true)}
+           className="flex items-center gap-2 text-[10px] font-bold uppercase text-blue-400 border border-blue-400/30 px-4 py-2 rounded-full hover:bg-blue-400 hover:text-black transition-colors"
+         >
+           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+             <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+           </svg>
+           {t.helpBtn}
+         </button>
       </div>
       
       {/* OpenAI Section */}
