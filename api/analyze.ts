@@ -38,7 +38,7 @@ const analysisSchema = {
     bestColors: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of 3 color categories that suit this person." },
     hairSuggestion: { type: Type.STRING, description: "A specific hair color or cut suggestion." },
     reasoning: { type: Type.STRING, description: "Why this suggestion works based on Visagismo principles." },
-    imageGenerationPrompt: { type: Type.STRING, description: "A highly detailed English prompt for an AI image generator to create a photorealistic portrait of this person with the suggested hairstyle. CRITICAL: You MUST describe the person's existing facial features (eye shape/color, nose shape, lip shape, skin texture, age, ethnicity) in extreme detail to ensure the generated face looks exactly like them. Do not change their facial features, only the hair." }
+    imageGenerationPrompt: { type: Type.STRING, description: "A highly detailed English prompt for an AI image generator to create a photorealistic portrait of this person with the suggested hairstyle. Include details like 'cinematic lighting', '8k', 'photorealistic'." }
   },
   required: ["faceShape", "skinTone", "eyeColor", "bestColors", "hairSuggestion", "reasoning", "imageGenerationPrompt"]
 };

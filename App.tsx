@@ -8,7 +8,6 @@ import { Swatchbook } from './components/Swatchbook';
 import { TechnicalGuides } from './components/TechnicalGuides';
 import { WeddingServices } from './components/WeddingServices';
 import { Logo } from './components/Logo';
-import { LogsDashboard } from './components/LogsDashboard';
 
 const App: React.FC = () => {
   const [language, setLanguage] = useState<Language | null>(null);
@@ -33,9 +32,7 @@ const App: React.FC = () => {
       case Tab.WEDDING:
         return <WeddingServices language={language} />;
       case Tab.CATALOGUE:
-        return <TechnicalGuides language={language} onNavigate={setActiveTab} />;
-      case Tab.LOGS:
-        return <LogsDashboard onBack={() => setActiveTab(Tab.CATALOGUE)} />;
+        return <TechnicalGuides language={language} />;
       default:
         return <Consultation language={language} />;
     }
@@ -53,11 +50,9 @@ const App: React.FC = () => {
       <div className="max-w-md mx-auto h-screen relative bg-black shadow-2xl overflow-hidden flex flex-col">
         
         {/* Top Branding Bar */}
-        {activeTab !== Tab.LOGS && (
-          <div className="pt-8 pb-2 flex justify-center border-b border-gray-900/50 bg-black/80 backdrop-blur-sm sticky top-0 z-20">
-              <Logo size="sm" />
-          </div>
-        )}
+        <div className="pt-8 pb-2 flex justify-center border-b border-gray-900/50 bg-black/80 backdrop-blur-sm sticky top-0 z-20">
+             <Logo size="sm" />
+        </div>
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto scrollbar-hide">
@@ -65,9 +60,7 @@ const App: React.FC = () => {
         </main>
 
         {/* Navigation */}
-        {activeTab !== Tab.LOGS && (
-          <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-        )}
+        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
     </div>
   );

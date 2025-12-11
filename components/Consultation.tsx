@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, Language } from '../types';
 import { Logo } from './Logo';
 import { PreviewGallery } from './PreviewGallery';
-import { logger } from '../services/logger';
 
 interface ConsultationProps {
   language: Language;
@@ -38,12 +37,6 @@ const TEXTS: Record<Language, {
   shorter: string;
   longer: string;
   refine: string;
-  finalize: string;
-  finalizeStandard: string;
-  finalImage: string;
-  generatingFinal: string;
-  errorFinal: string;
-  noApiKey: string;
 }> = {
   en: {
     welcome: "Welcome to Beatriz Bittencourt Professional. I am your Visagismo expert. Start a video analysis to find your perfect match, or chat with me directly.",
@@ -74,13 +67,7 @@ const TEXTS: Record<Language, {
     darker: "Darker",
     shorter: "Shorter",
     longer: "Longer",
-    refine: "Refine Look",
-    finalize: "Generate HD Portrait",
-    finalizeStandard: "Fast Preview",
-    finalImage: "Final Image",
-    generatingFinal: "Generating final image...",
-    errorFinal: "Failed to generate the final image.",
-    noApiKey: "Service Mode not active. Please add your own Key in Guides, or contact Admin.",
+    refine: "Refine Look"
   },
   pt: {
     welcome: "Bem-vindo à Beatriz Bittencourt Professional. Sou sua especialista em Visagismo. Comece uma análise de vídeo para encontrar sua combinação perfeita ou converse comigo diretamente.",
@@ -111,13 +98,7 @@ const TEXTS: Record<Language, {
     darker: "Mais Escuro",
     shorter: "Mais Curto",
     longer: "Mais Longo",
-    refine: "Refinar Visual",
-    finalize: "Gerar Foto HD",
-    finalizeStandard: "Prévia Rápida",
-    finalImage: "Imagem Final",
-    generatingFinal: "Gerando imagem final...",
-    errorFinal: "Falha ao gerar a imagem final.",
-    noApiKey: "Modo Serviço inativo. Adicione sua chave em Guias ou contate o Admin.",
+    refine: "Refinar Visual"
   },
   es: {
     welcome: "Bienvenido a Beatriz Bittencourt Professional. Soy tu experta en Visagismo. Inicia un análisis de video para encontrar tu tono perfecto o chatea conmigo.",
@@ -148,13 +129,7 @@ const TEXTS: Record<Language, {
     darker: "Más Oscuro",
     shorter: "Más Corto",
     longer: "Más Largo",
-    refine: "Refinar Look",
-    finalize: "Generar Foto HD",
-    finalizeStandard: "Vista Rápida",
-    finalImage: "Imagen Final",
-    generatingFinal: "Generando imagen final...",
-    errorFinal: "Error al generar la imagen final.",
-    noApiKey: "Modo Servicio inactivo. Añade tu clave en Guías o contacta al Admin.",
+    refine: "Refinar Look"
   },
   de: {
     welcome: "Willkommen bei Beatriz Bittencourt Professional. Ich bin Ihr Visagismus-Experte. Starten Sie eine Videoanalyse oder chatten Sie direkt mit mir.",
@@ -185,13 +160,7 @@ const TEXTS: Record<Language, {
     darker: "Dunkler",
     shorter: "Kürzer",
     longer: "Länger",
-    refine: "Verfeinern",
-    finalize: "HD-Porträt",
-    finalizeStandard: "Schnellvorschau",
-    finalImage: "Endgültiges Bild",
-    generatingFinal: "Endgültiges Bild wird generiert...",
-    errorFinal: "Fehler beim Generieren des endgültigen Bildes.",
-    noApiKey: "Service-Modus inaktiv. Fügen Sie Ihren Schlüssel in Guides hinzu.",
+    refine: "Verfeinern"
   },
   fr: {
     welcome: "Bienvenue chez Beatriz Bittencourt Professional. Je suis votre expert en Visagisme. Commencez une analyse vidéo ou discutez avec moi.",
@@ -222,13 +191,7 @@ const TEXTS: Record<Language, {
     darker: "Plus Foncé",
     shorter: "Plus Court",
     longer: "Plus Long",
-    refine: "Affiner",
-    finalize: "Portrait HD",
-    finalizeStandard: "Aperçu Rapide",
-    finalImage: "Image Finale",
-    generatingFinal: "Génération de l'image finale...",
-    errorFinal: "Échec de la génération de l'image finale.",
-    noApiKey: "Mode Service inactif. Ajoutez votre clé dans Guides ou contactez l'Admin.",
+    refine: "Affiner"
   },
   it: {
     welcome: "Benvenuto in Beatriz Bittencourt Professional. Sono il tuo esperto di Visagismo. Inizia un'analisi video o chatta con me.",
@@ -259,13 +222,7 @@ const TEXTS: Record<Language, {
     darker: "Più Scuro",
     shorter: "Più Corto",
     longer: "Più Lungo",
-    refine: "Raffina",
-    finalize: "Ritratto HD",
-    finalizeStandard: "Anteprima Veloce",
-    finalImage: "Immagine Finale",
-    generatingFinal: "Generazione immagine finale...",
-    errorFinal: "Impossibile generare l'immagine finale.",
-    noApiKey: "Modalità Servizio inattiva. Aggiungi la tua chiave in Guide.",
+    refine: "Raffina"
   }
 };
 
@@ -307,7 +264,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
   // Extract all generated images from history for the gallery
   const generatedHistory = messages
-    .filter(m => m.generatedImage && m.originalPrompt && !m.isFinalImage)
+    .filter(m => m.generatedImage && m.originalPrompt)
     .map(m => ({ src: m.generatedImage!, prompt: m.originalPrompt! }));
 
   const handleGallerySelect = (prompt: string, src: string) => {
@@ -341,8 +298,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
     setLoading(true);
     setLoadingText('');
-    
-    logger.info('ui', 'User sent a message', { hasImage: !!userMsg.image });
 
     try {
       const response = await fetch('/api/chat', {
@@ -362,10 +317,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
       const data = await response.json();
       setMessages(prev => [...prev, { role: 'model', text: data.responseText }]);
-      logger.success('api', 'Received chat response', { length: data.responseText.length });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Chat API Error:", error);
-      logger.error('api', 'Chat API failed', error.message);
       setMessages(prev => [...prev, { role: 'model', text: t.errorChat }]);
     } finally {
       setLoading(false);
@@ -375,7 +328,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
   // --- Camera Logic ---
   const startCamera = async () => {
     setIsCameraOpen(true);
-    logger.info('ui', 'Starting camera');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'user' } 
@@ -383,9 +335,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error accessing camera:", err);
-      logger.error('system', 'Camera access failed', err.message);
       alert("Unable to access camera. Please allow permissions in your browser settings.");
       setIsCameraOpen(false);
     }
@@ -409,79 +360,50 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     canvasRef.current.height = videoRef.current.videoHeight;
     context.drawImage(videoRef.current, 0, 0);
 
-    // Resize to max 1024px to avoid payload issues
-    const MAX_WIDTH = 1024;
-    const MAX_HEIGHT = 1024;
-    let width = canvasRef.current.width;
-    let height = canvasRef.current.height;
+    const imageBase64 = canvasRef.current.toDataURL('image/jpeg', 0.8);
+    
+    stopCamera();
+    
+    // Add prompt immediately
+    const userMsg: ChatMessage = { role: 'user', text: t.analyzeCommand, image: imageBase64 };
+    setMessages(prev => [...prev, userMsg]);
+    
+    setLoading(true);
+    setLoadingText(t.analyzing);
 
-    if (width > height) {
-      if (width > MAX_WIDTH) {
-        height *= MAX_WIDTH / width;
-        width = MAX_WIDTH;
+    try {
+      // 1. Analyze
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64, language }), 
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || 'Failed to analyze image.');
       }
-    } else {
-      if (height > MAX_HEIGHT) {
-        width *= MAX_HEIGHT / height;
-        height = MAX_HEIGHT;
-      }
-    }
 
-    const resizedCanvas = document.createElement('canvas');
-    resizedCanvas.width = width;
-    resizedCanvas.height = height;
-    const ctx = resizedCanvas.getContext('2d');
-    if(ctx) {
-      ctx.drawImage(canvasRef.current, 0, 0, width, height);
-      const imageBase64 = resizedCanvas.toDataURL('image/jpeg', 0.8);
+      const { analysis } = await response.json();
       
-      stopCamera();
-      logger.info('ui', 'Image captured and resized', { width, height });
+      const analysisMessage: ChatMessage = {
+        role: 'model',
+        text: analysis.reasoning,
+        analysis: analysis
+      };
+      setMessages(prev => [...prev, analysisMessage]);
       
-      // Add prompt immediately
-      const userMsg: ChatMessage = { role: 'user', text: t.analyzeCommand, image: imageBase64 };
-      setMessages(prev => [...prev, userMsg]);
-      
-      setLoading(true);
-      setLoadingText(t.analyzing);
+      // Set the initial prompt for this session
+      setActivePrompt(analysis.imageGenerationPrompt);
 
-      try {
-        // 1. Analyze
-        logger.info('api', 'Starting face analysis');
-        const response = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64, language }), 
-        });
+      // 2. Generate Style separately
+      // Use the helper to handle the request and state
+      await requestImageGeneration(analysis.imageGenerationPrompt);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.details || 'Failed to analyze image.');
-        }
-
-        const { analysis } = await response.json();
-        logger.success('api', 'Face analysis completed', { faceShape: analysis.faceShape });
-        
-        const analysisMessage: ChatMessage = {
-          role: 'model',
-          text: analysis.reasoning,
-          analysis: analysis
-        };
-        setMessages(prev => [...prev, analysisMessage]);
-        
-        // Set the initial prompt for this session
-        setActivePrompt(analysis.imageGenerationPrompt);
-
-        // 2. Generate Style separately
-        // Use the helper to handle the request and state
-        await requestImageGeneration(analysis.imageGenerationPrompt);
-
-      } catch (error: any) {
-        console.error("Analysis API Error:", error);
-        logger.error('api', 'Face analysis failed', error.message);
-        setMessages(prev => [...prev, { role: 'model', text: t.errorAnalysis }]);
-        setLoading(false); 
-      }
+    } catch (error) {
+      console.error("Analysis API Error:", error);
+      setMessages(prev => [...prev, { role: 'model', text: t.errorAnalysis }]);
+      setLoading(false); // Only set loading to false on error, otherwise requestImageGeneration handles it
     }
   };
 
@@ -489,7 +411,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     try {
         setLoading(true);
         setLoadingText(t.projection + '...');
-        logger.info('api', 'Requesting image generation');
         const genResponse = await fetch('/api/generate-style', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -498,7 +419,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
         if(genResponse.ok) {
             const { generatedImage } = await genResponse.json();
-            logger.success('api', 'Image generation successful');
             
             // Add new image to chat
             setMessages(prev => [...prev, {
@@ -514,112 +434,26 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         } else {
              throw new Error("Generation failed");
         }
-    } catch (genError: any) {
+    } catch (genError) {
         console.error("Generation Error:", genError);
-        logger.error('api', 'Image generation failed', genError.message);
-        // Display visible error in chat so user knows regeneration is needed
-        setMessages(prev => [...prev, { 
-            role: 'model', 
-            text: "Could not generate preview image. Please use 'Regenerate' to try again." 
-        }]);
+        setMessages(prev => [...prev, { role: 'model', text: t.errorAnalysis }]);
     } finally {
         setLoading(false);
         setLoadingText('');
     }
   };
 
-  const handleFinalize = async () => {
-    // Check local storage OR proceed if admin key might be configured on server
-    const apiKey = localStorage.getItem('openai_api_key');
-    if (!activePrompt) return;
-
-    setLoading(true);
-    setLoadingText(t.generatingFinal);
-    logger.info('api', 'Starting DALL-E 3 finalization');
-
-    try {
-      const response = await fetch('/api/generate-final-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: activePrompt, apiKey: apiKey }), // apiKey can be null
-      });
-
-      if (response.status === 401) {
-          alert(t.noApiKey);
-          setLoading(false);
-          setLoadingText('');
-          return;
-      }
-
-      if (!response.ok) throw new Error('Failed to generate final image.');
-      
-      const { finalImage } = await response.json();
-      logger.success('api', 'DALL-E 3 image generated');
-      setMessages(prev => [...prev, {
-        role: 'model',
-        text: '',
-        generatedImage: finalImage,
-        isFinalImage: true
-      }]);
-
-    } catch (error: any) {
-      console.error("DALL-E 3 Error:", error);
-      logger.error('api', 'DALL-E 3 generation failed', error.message);
-      setMessages(prev => [...prev, { role: 'model', text: t.errorFinal }]);
-    } finally {
-      setLoading(false);
-      setLoadingText('');
-    }
-  };
-
-  const handleFinalizeEconomy = async () => {
-    if (!activePrompt) return;
-
-    setLoading(true);
-    setLoadingText(t.generatingFinal);
-    logger.info('api', 'Starting Standard finalization');
-
-    try {
-      // Use standard generation endpoint for economy mode
-      const response = await fetch('/api/generate-style', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: activePrompt }), 
-      });
-
-      if (!response.ok) throw new Error('Failed to generate standard final image.');
-
-      const { generatedImage } = await response.json();
-      logger.success('api', 'Standard finalization successful');
-      setMessages(prev => [...prev, {
-        role: 'model',
-        text: '',
-        generatedImage: generatedImage,
-        isFinalImage: true // Treat as final
-      }]);
-
-    } catch (error: any) {
-      console.error("Standard Finalize Error:", error);
-      logger.error('api', 'Standard finalization failed', error.message);
-      setMessages(prev => [...prev, { role: 'model', text: t.errorFinal }]);
-    } finally {
-      setLoading(false);
-      setLoadingText('');
-    }
-  };
-
   const handleRefine = (modifier: string) => {
       if (!activePrompt) return;
-      logger.info('ui', `Refining look: ${modifier}`);
       
       // Map basic modifiers to technical prompt additions
       let modification = "";
       switch(modifier) {
-          case 'regenerate': modification = "slight variation, consistent lighting"; break;
-          case 'lighter': modification = "lighter hair color shade, soft highlights"; break;
-          case 'darker': modification = "darker hair color depth, richer tone"; break;
-          case 'shorter': modification = "slightly shorter hair length, modern cut"; break;
-          case 'longer': modification = "slightly longer hair length, extensions look"; break;
+          case 'regenerate': modification = " slight variation, consistent lighting"; break;
+          case 'lighter': modification = " lighter hair color shade, soft highlights"; break;
+          case 'darker': modification = " darker hair color depth, richer tone"; break;
+          case 'shorter': modification = " slightly shorter hair length, modern cut"; break;
+          case 'longer': modification = " slightly longer hair length, extensions look"; break;
           default: modification = "";
       }
 
@@ -671,23 +505,23 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
   if (!started) {
     return (
       <div className="flex flex-col h-full items-center justify-center px-6 text-center animate-fade-in pb-24">
-        <div className="mb-12 animate-slide-up">
+        <div className="mb-12">
             <Logo size="lg" />
         </div>
         
-        <h1 className="text-3xl font-bold mb-4 animate-slide-up delay-100">
+        <h1 className="text-3xl font-bold mb-4">
           {t.title}
           <br />
           <span className="text-gray-400 font-normal text-2xl">{t.subtitle}</span>
         </h1>
         
-        <p className="text-gray-500 mb-12 max-w-md mx-auto animate-slide-up delay-200">
+        <p className="text-gray-500 mb-12 max-w-md mx-auto">
           {t.description}
         </p>
 
         <button 
-          onClick={() => { setStarted(true); startCamera(); }}
-          className="bg-white text-black font-bold uppercase py-4 px-12 text-sm tracking-widest hover:bg-gray-200 transition-colors w-full max-w-xs mb-4 flex items-center justify-center gap-2 animate-slide-up delay-300"
+          onClick={startCamera}
+          className="bg-white text-black font-bold uppercase py-4 px-12 text-sm tracking-widest hover:bg-gray-200 transition-colors w-full max-w-xs mb-4 flex items-center justify-center gap-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
@@ -697,8 +531,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         </button>
 
         <button 
-          onClick={() => { setStarted(true); logger.info('ui', 'Started text consultation'); }}
-          className="border border-gray-800 text-gray-300 font-bold uppercase py-4 px-12 text-sm tracking-widest hover:border-white transition-colors w-full max-w-xs mb-4 animate-slide-up delay-300"
+          onClick={() => setStarted(true)}
+          className="border border-gray-800 text-gray-300 font-bold uppercase py-4 px-12 text-sm tracking-widest hover:border-white transition-colors w-full max-w-xs mb-4"
         >
           {t.textBtn}
         </button>
@@ -707,7 +541,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
           href="https://wa.me/5511992279655?text=Gostaria%20de%20agendar,%20vim%20atrav%C3%A9s%20do%20site"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-gray-600 font-medium uppercase py-3 px-8 text-[10px] tracking-[0.2em] hover:text-white transition-colors w-full max-w-xs animate-slide-up delay-500"
+          className="text-gray-600 font-medium uppercase py-3 px-8 text-[10px] tracking-[0.2em] hover:text-white transition-colors w-full max-w-xs"
         >
            {t.bookBtn}
         </a>
@@ -718,7 +552,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] pb-4 pt-4">
         {/* Top Bar for Consultation */}
-        <div className="px-4 mb-4 border-b border-gray-800 pb-4 flex justify-between items-center bg-black z-10 animate-slide-up">
+        <div className="px-4 mb-4 border-b border-gray-800 pb-4 flex justify-between items-center bg-black z-10">
             <h2 className="text-lg font-bold">{t.consultationTitle}</h2>
             <div className="flex gap-4">
               <button onClick={startCamera} className="text-xs uppercase text-white border border-white px-3 py-1 hover:bg-white hover:text-black transition-colors">
@@ -739,8 +573,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         {messages.map((msg, index) => (
           <div 
             key={index} 
-            className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} animate-message-in`}
-            style={{ animationDelay: '100ms' }}
+            className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
           >
             {msg.image && (
               <div className="mb-2 max-w-[70%] border border-gray-800 rounded overflow-hidden">
@@ -749,7 +582,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             )}
 
             {msg.analysis && (
-               <div className="mb-2 w-full max-w-[85%] bg-[#111] border border-gray-700 p-4 rounded-sm animate-blur-in">
+               <div className="mb-2 w-full max-w-[85%] bg-[#111] border border-gray-700 p-4 rounded-sm">
                   <h4 className="text-xs uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-800 pb-2">{t.expert} Diagnosis</h4>
                   <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                      <div>
@@ -773,29 +606,15 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             )}
 
             {msg.generatedImage && (
-               <div className={`mb-2 max-w-[85%] border rounded overflow-hidden relative group flex flex-col transition-all animate-slow-zoom ${activeGeneratedImageSrc === msg.generatedImage ? 'border-white shadow-lg' : 'border-gray-700'}`}>
+               <div className={`mb-2 max-w-[85%] border rounded overflow-hidden relative group flex flex-col transition-all ${activeGeneratedImageSrc === msg.generatedImage ? 'border-white shadow-lg' : 'border-gray-700'}`}>
                   <div className="relative">
-                      <div className={`absolute top-2 left-2 backdrop-blur px-2 py-1 text-[8px] uppercase tracking-widest text-white z-10 ${msg.isFinalImage ? 'bg-purple-900/80 border border-purple-500' : 'bg-black/50'}`}>
-                        {msg.isFinalImage ? t.finalImage : t.projection}
-                      </div>
+                      <div className="absolute top-2 left-2 bg-black/50 backdrop-blur px-2 py-1 text-[8px] uppercase tracking-widest text-white z-10">{t.projection}</div>
                       <img 
                           src={msg.generatedImage} 
                           alt="Generated Look" 
                           className="w-full h-auto cursor-pointer" 
-                          onClick={() => !msg.isFinalImage && handleGallerySelect(msg.originalPrompt || "", msg.generatedImage!)}
+                          onClick={() => handleGallerySelect(msg.originalPrompt || "", msg.generatedImage!)}
                       />
-                      {msg.isFinalImage && (
-                        <a 
-                          href={msg.generatedImage}
-                          download={`Beatriz_Bittencourt_Style_${Date.now()}.png`}
-                          className="absolute bottom-3 right-3 bg-white/10 hover:bg-white/90 text-white hover:text-black p-2 rounded-full backdrop-blur-md transition-all duration-300 opacity-0 group-hover:opacity-100 z-20"
-                          title="Download High Resolution"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M12 12.75l-7.5-7.5M12 12.75l7.5-7.5M12 12.75V3" />
-                          </svg>
-                        </a>
-                      )}
                   </div>
                </div>
             )}
@@ -817,14 +636,14 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
           </div>
         ))}
         {loading && (
-          <div className="flex justify-start w-full animate-message-in">
+          <div className="flex justify-start w-full">
             <div className="bg-[#1a1a1a] border border-gray-800 p-4 flex items-center gap-3">
               <div className="flex gap-1">
                 <div className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" />
                 <div className="w-1.5 h-1.5 bg-white rounded-full animate-bounce delay-100" />
                 <div className="w-1.5 h-1.5 bg-white rounded-full animate-bounce delay-200" />
               </div>
-              <span className="text-xs uppercase tracking-widest text-gray-400 animate-pulse">{loadingText || 'Processing...'}</span>
+              <span className="text-xs uppercase tracking-widest text-gray-400">{loadingText || 'Processing...'}</span>
             </div>
           </div>
         )}
@@ -833,37 +652,21 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
         {/* Refinement Controls - Fixed at bottom above input */}
         {activePrompt && !loading && (
-            <div className="bg-[#0a0a0a] p-3 border-t border-gray-900 mx-4 mb-2 space-y-2 animate-slide-up">
-                <div>
-                    <div className="text-[9px] text-gray-500 uppercase tracking-widest text-center mb-2">{t.refine}: {t.variations}</div>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                        <button onClick={() => handleRefine('regenerate')} className="col-span-2 md:col-span-1 text-[9px] font-bold uppercase border border-gray-700 bg-gray-900 text-white py-2 hover:bg-white hover:text-black transition-colors">{t.regenerate}</button>
-                        <button onClick={() => handleRefine('lighter')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.lighter}</button>
-                        <button onClick={() => handleRefine('darker')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.darker}</button>
-                        <button onClick={() => handleRefine('shorter')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.shorter}</button>
-                        <button onClick={() => handleRefine('longer')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.longer}</button>
-                    </div>
-                </div>
-                <div className="flex gap-2">
-                    <button 
-                      onClick={handleFinalizeEconomy}
-                      className="flex-1 text-[10px] font-bold uppercase bg-gray-800 border border-gray-700 text-white py-3 hover:bg-gray-700 transition-colors"
-                    >
-                        {t.finalizeStandard}
-                    </button>
-                    <button 
-                      onClick={handleFinalize}
-                      className="flex-1 text-[10px] font-bold uppercase bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 hover:opacity-90 transition-opacity"
-                    >
-                        {t.finalize}
-                    </button>
+            <div className="bg-[#0a0a0a] p-3 border-t border-gray-900 mx-4 mb-2">
+                <div className="text-[9px] text-gray-500 uppercase tracking-widest text-center mb-2">{t.refine}: {t.variations}</div>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    <button onClick={() => handleRefine('regenerate')} className="col-span-2 md:col-span-1 text-[9px] font-bold uppercase border border-gray-700 bg-gray-900 text-white py-2 hover:bg-white hover:text-black transition-colors">{t.regenerate}</button>
+                    <button onClick={() => handleRefine('lighter')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.lighter}</button>
+                    <button onClick={() => handleRefine('darker')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.darker}</button>
+                    <button onClick={() => handleRefine('shorter')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.shorter}</button>
+                    <button onClick={() => handleRefine('longer')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.longer}</button>
                 </div>
             </div>
         )}
 
       <div className="p-4 border-t border-gray-800 bg-black">
         {selectedImage && (
-          <div className="mb-2 relative inline-block animate-slide-up">
+          <div className="mb-2 relative inline-block">
              <img src={selectedImage} alt="Preview" className="h-16 w-auto border border-gray-700 rounded" />
              <button 
                 onClick={() => { setSelectedImage(null); if(fileInputRef.current) fileInputRef.current.value = ''; }}
