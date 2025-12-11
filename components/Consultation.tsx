@@ -32,6 +32,10 @@ const TEXTS: Record<Language, {
   expert: string;
   projection: string;
   alignFace: string;
+  alignEyes: string;
+  lightingDark: string;
+  lightingBright: string;
+  lightingGood: string;
   regenerate: string;
   variations: string;
   lighter: string;
@@ -45,6 +49,7 @@ const TEXTS: Record<Language, {
   finalize: string;
   finalizeStandard: string;
   finalImage: string;
+  comparisonTitle: string;
   generatingFinal: string;
   errorFinal: string;
   noApiKey: string;
@@ -75,6 +80,10 @@ const TEXTS: Record<Language, {
     expert: "Virtual Expert",
     projection: "AI Projection",
     alignFace: "ALIGN YOUR FACE",
+    alignEyes: "ALIGN EYES HERE",
+    lightingDark: "Too dark. Find light.",
+    lightingBright: "Too bright.",
+    lightingGood: "Perfect lighting.",
     regenerate: "Regenerate",
     variations: "Variations",
     lighter: "Lighter",
@@ -87,8 +96,9 @@ const TEXTS: Record<Language, {
     refine: "Refine Look",
     finalize: "Finalize (DALL·E 3)",
     finalizeStandard: "Finalize (Standard)",
-    finalImage: "Final Image",
-    generatingFinal: "Generating final image...",
+    finalImage: "Final Result",
+    comparisonTitle: "Before & After",
+    generatingFinal: "Generating final look...",
     errorFinal: "Failed to generate the final image.",
     noApiKey: "Service Mode not active. Please add your own Key in Guides, or contact Admin.",
     getFormula: "Get Technical Recipe",
@@ -118,6 +128,10 @@ const TEXTS: Record<Language, {
     expert: "Especialista Virtual",
     projection: "Projeção IA",
     alignFace: "ALINHE SEU ROSTO",
+    alignEyes: "ALINHE OS OLHOS AQUI",
+    lightingDark: "Muito escuro. Busque luz.",
+    lightingBright: "Muito claro.",
+    lightingGood: "Iluminação perfeita.",
     regenerate: "Regenerar",
     variations: "Variações",
     lighter: "Mais Claro",
@@ -130,8 +144,9 @@ const TEXTS: Record<Language, {
     refine: "Refinar Visual",
     finalize: "Finalizar (DALL·E 3)",
     finalizeStandard: "Finalizar (Padrão)",
-    finalImage: "Imagem Final",
-    generatingFinal: "Gerando imagem final...",
+    finalImage: "Resultado Final",
+    comparisonTitle: "Antes & Depois",
+    generatingFinal: "Gerando visual final...",
     errorFinal: "Falha ao gerar a imagem final.",
     noApiKey: "Modo Serviço inativo. Adicione sua chave em Guias ou contate o Admin.",
     getFormula: "Gerar Receita Técnica",
@@ -161,6 +176,10 @@ const TEXTS: Record<Language, {
     expert: "Experto Virtual",
     projection: "Proyección IA",
     alignFace: "ALINEA TU ROSTRO",
+    alignEyes: "ALINEA LOS OJOS AQUÍ",
+    lightingDark: "Muy oscuro. Busca luz.",
+    lightingBright: "Muy brillante.",
+    lightingGood: "Iluminación perfecta.",
     regenerate: "Regenerar",
     variations: "Variaciones",
     lighter: "Más Claro",
@@ -173,7 +192,8 @@ const TEXTS: Record<Language, {
     refine: "Refinar Look",
     finalize: "Finalizar (DALL·E 3)",
     finalizeStandard: "Finalizar (Estándar)",
-    finalImage: "Imagen Final",
+    finalImage: "Resultado Final",
+    comparisonTitle: "Antes y Después",
     generatingFinal: "Generando imagen final...",
     errorFinal: "Error al generar la imagen final.",
     noApiKey: "Modo Servicio inactivo. Añade tu clave en Guías o contacta al Admin.",
@@ -204,6 +224,10 @@ const TEXTS: Record<Language, {
     expert: "Virtueller Experte",
     projection: "KI-Projektion",
     alignFace: "GESICHT AUSRICHTEN",
+    alignEyes: "AUGEN HIER AUSRICHTEN",
+    lightingDark: "Zu dunkel. Licht suchen.",
+    lightingBright: "Zu hell.",
+    lightingGood: "Perfektes Licht.",
     regenerate: "Regenerieren",
     variations: "Variationen",
     lighter: "Heller",
@@ -216,7 +240,8 @@ const TEXTS: Record<Language, {
     refine: "Verfeinern",
     finalize: "Fertigstellen (DALL·E 3)",
     finalizeStandard: "Fertigstellen (Standard)",
-    finalImage: "Endgültiges Bild",
+    finalImage: "Endergebnis",
+    comparisonTitle: "Vorher & Nachher",
     generatingFinal: "Endgültiges Bild wird generiert...",
     errorFinal: "Fehler beim Generieren des endgültigen Bildes.",
     noApiKey: "Service-Modus inaktiv. Fügen Sie Ihren Schlüssel in Guides hinzu.",
@@ -247,6 +272,10 @@ const TEXTS: Record<Language, {
     expert: "Expert Virtuel",
     projection: "Projection IA",
     alignFace: "ALIGNEZ VOTRE VISAGE",
+    alignEyes: "ALIGNEZ LES YEUX ICI",
+    lightingDark: "Trop sombre. Cherchez la lumière.",
+    lightingBright: "Trop lumineux.",
+    lightingGood: "Éclairage parfait.",
     regenerate: "Régénérer",
     variations: "Variations",
     lighter: "Plus Clair",
@@ -259,7 +288,8 @@ const TEXTS: Record<Language, {
     refine: "Affiner",
     finalize: "Finaliser (DALL·E 3)",
     finalizeStandard: "Finaliser (Standard)",
-    finalImage: "Image Finale",
+    finalImage: "Résultat Final",
+    comparisonTitle: "Avant & Après",
     generatingFinal: "Génération de l'image finale...",
     errorFinal: "Échec de la génération de l'image finale.",
     noApiKey: "Mode Service inactif. Ajoutez votre clé dans Guides ou contactez l'Admin.",
@@ -290,6 +320,10 @@ const TEXTS: Record<Language, {
     expert: "Esperto Virtuale",
     projection: "Proiezione IA",
     alignFace: "ALLINEA IL VISO",
+    alignEyes: "ALLINEA GLI OCCHI QUI",
+    lightingDark: "Troppo scuro. Cerca luce.",
+    lightingBright: "Troppo luminoso.",
+    lightingGood: "Illuminazione perfetta.",
     regenerate: "Rigenera",
     variations: "Variazioni",
     lighter: "Più Chiaro",
@@ -302,7 +336,8 @@ const TEXTS: Record<Language, {
     refine: "Raffina",
     finalize: "Finalizza (DALL·E 3)",
     finalizeStandard: "Finalizza (Standard)",
-    finalImage: "Immagine Finale",
+    finalImage: "Risultato Finale",
+    comparisonTitle: "Prima & Dopo",
     generatingFinal: "Generazione immagine finale...",
     errorFinal: "Impossibile generare l'immagine finale.",
     noApiKey: "Modalità Servizio inattiva. Aggiungi la tua chiave in Guide.",
@@ -330,10 +365,13 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
   
   // Camera States
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [lightingCondition, setLightingCondition] = useState<'good' | 'dark' | 'bright'>('good');
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const lightingIntervalRef = useRef<any>(null);
 
   // Initialize welcome message when language changes
   useEffect(() => {
@@ -359,6 +397,56 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
   const handleGallerySelect = (prompt: string, src: string) => {
       setActivePrompt(prompt);
       setActiveGeneratedImageSrc(src);
+  };
+
+  const createCompositeImage = async (originalSrc: string, generatedSrc: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img1 = new Image();
+      const img2 = new Image();
+      img1.crossOrigin = "anonymous";
+      img2.crossOrigin = "anonymous";
+      
+      let loaded = 0;
+      const onImageLoad = () => {
+        loaded++;
+        if (loaded === 2) {
+           const canvas = document.createElement('canvas');
+           // Draw side by side
+           canvas.width = img1.width + img2.width;
+           canvas.height = Math.max(img1.height, img2.height);
+           const ctx = canvas.getContext('2d');
+           if (ctx) {
+             ctx.fillStyle = "#000000";
+             ctx.fillRect(0, 0, canvas.width, canvas.height);
+             
+             // Draw original
+             ctx.drawImage(img1, 0, 0);
+             
+             // Draw generated
+             ctx.drawImage(img2, img1.width, 0);
+             
+             // Add Watermark text
+             ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+             ctx.font = "bold 24px sans-serif";
+             ctx.textAlign = "center";
+             ctx.fillText(t.comparisonTitle, canvas.width / 2, canvas.height - 20);
+             
+             resolve(canvas.toDataURL('image/jpeg', 0.9));
+           } else {
+             resolve(generatedSrc); // Fallback
+           }
+        }
+      };
+
+      img1.onerror = () => resolve(generatedSrc);
+      img2.onerror = () => resolve(generatedSrc);
+      
+      img1.onload = onImageLoad;
+      img2.onload = onImageLoad;
+      
+      img1.src = originalSrc;
+      img2.src = generatedSrc;
+    });
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -396,7 +484,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     logger.info('ui', 'User sent a message', { hasImage: !!userMsg.image });
 
     try {
-      // Check for Keys
       const openRouterKey = localStorage.getItem('openrouter_api_key');
       const siliconFlowKey = localStorage.getItem('siliconflow_api_key');
 
@@ -430,6 +517,38 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
   };
 
   // --- Camera Logic ---
+  const checkLighting = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const ctx = canvasRef.current.getContext('2d');
+    if (!ctx) return;
+
+    // Sample small area for performance
+    ctx.drawImage(videoRef.current, 0, 0, 100, 100);
+    const frame = ctx.getImageData(0, 0, 100, 100);
+    const data = frame.data;
+    
+    let colorSum = 0;
+    for(let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i+1];
+        const b = data[i+2];
+        const avg = Math.floor((r + g + b) / 3);
+        colorSum += avg;
+    }
+    
+    const brightness = Math.floor(colorSum / (100 * 100));
+    
+    // Thresholds: < 80 is dark, > 230 is bright
+    if (brightness < 80) {
+        setLightingCondition('dark');
+    } else if (brightness > 230) {
+        setLightingCondition('bright');
+    } else {
+        setLightingCondition('good');
+    }
+  };
+
   const startCamera = async () => {
     setIsCameraOpen(true);
     logger.info('ui', 'Starting camera');
@@ -440,6 +559,9 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
+      // Start lighting check interval
+      lightingIntervalRef.current = setInterval(checkLighting, 200);
+
     } catch (err: any) {
       console.error("Error accessing camera:", err);
       logger.error('system', 'Camera access failed', err.message);
@@ -452,6 +574,9 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach(track => track.stop());
+    }
+    if (lightingIntervalRef.current) {
+        clearInterval(lightingIntervalRef.current);
     }
     setIsCameraOpen(false);
   };
@@ -495,10 +620,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       stopCamera();
       logger.info('ui', 'Image captured and resized', { width, height });
       
-      // Store original selfie for formula calculation later
       setUserOriginalSelfie(imageBase64);
 
-      // Add prompt immediately
       const userMsg: ChatMessage = { role: 'user', text: t.analyzeCommand, image: imageBase64 };
       setMessages(prev => [...prev, userMsg]);
       
@@ -506,7 +629,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       setLoadingText(t.analyzing);
 
       try {
-        // 1. Analyze
         logger.info('api', 'Starting face analysis');
         const openRouterKey = localStorage.getItem('openrouter_api_key');
         const siliconFlowKey = localStorage.getItem('siliconflow_api_key');
@@ -537,11 +659,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         };
         setMessages(prev => [...prev, analysisMessage]);
         
-        // Set the initial prompt for this session
         setActivePrompt(analysis.imageGenerationPrompt);
 
-        // 2. Generate Style separately
-        // Use the helper to handle the request and state
         await requestImageGeneration(analysis.imageGenerationPrompt);
 
       } catch (error: any) {
@@ -559,7 +678,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         setLoadingText(t.projection + '...');
         logger.info('api', 'Requesting image generation');
         
-        // Get API key if available
         const apiKey = localStorage.getItem('openai_api_key');
         const openRouterKey = localStorage.getItem('openrouter_api_key');
         const siliconFlowKey = localStorage.getItem('siliconflow_api_key');
@@ -579,7 +697,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             const { generatedImage } = await genResponse.json();
             logger.success('api', 'Image generation successful');
             
-            // Add new image to chat
             setMessages(prev => [...prev, {
                 role: 'model',
                 text: "", 
@@ -587,7 +704,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
                 originalPrompt: prompt
             }]);
 
-            // Automatically select the new image as active
             setActivePrompt(prompt);
             setActiveGeneratedImageSrc(generatedImage);
         } else {
@@ -596,7 +712,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     } catch (genError: any) {
         console.error("Generation Error:", genError);
         logger.error('api', 'Image generation failed', genError.message);
-        // Display visible error in chat so user knows regeneration is needed
         setMessages(prev => [...prev, { 
             role: 'model', 
             text: "Could not generate preview image. Please use 'Regenerate' to try again." 
@@ -627,7 +742,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
         const { formula } = await response.json();
         
-        // Add formula to chat
         setMessages(prev => [...prev, {
             role: 'model',
             text: '',
@@ -645,7 +759,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
   };
 
   const handleFinalize = async () => {
-    // Check local storage OR proceed if admin key might be configured on server
     const apiKey = localStorage.getItem('openai_api_key');
     if (!activePrompt) return;
 
@@ -657,7 +770,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       const response = await fetch('/api/generate-final-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: activePrompt, apiKey: apiKey }), // apiKey can be null
+        body: JSON.stringify({ prompt: activePrompt, apiKey: apiKey }),
       });
 
       if (response.status === 401) {
@@ -671,10 +784,23 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       
       const { finalImage } = await response.json();
       logger.success('api', 'DALL-E 3 image generated');
+
+      let displayImage = finalImage;
+
+      // Create composite if user selfie exists
+      if (userOriginalSelfie) {
+         try {
+             displayImage = await createCompositeImage(userOriginalSelfie, finalImage);
+             logger.success('ui', 'Composite image created');
+         } catch (e) {
+             console.error("Composite failed", e);
+         }
+      }
+
       setMessages(prev => [...prev, {
         role: 'model',
         text: '',
-        generatedImage: finalImage,
+        generatedImage: displayImage,
         isFinalImage: true
       }]);
 
@@ -696,12 +822,10 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     logger.info('api', 'Starting Standard finalization');
 
     try {
-      // Get API keys
       const apiKey = localStorage.getItem('openai_api_key');
       const openRouterKey = localStorage.getItem('openrouter_api_key');
       const siliconFlowKey = localStorage.getItem('siliconflow_api_key');
 
-      // Use standard generation endpoint for economy mode
       const response = await fetch('/api/generate-style', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -717,11 +841,24 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
       const { generatedImage } = await response.json();
       logger.success('api', 'Standard finalization successful');
+
+      let displayImage = generatedImage;
+
+      // Create composite if user selfie exists
+      if (userOriginalSelfie) {
+         try {
+             displayImage = await createCompositeImage(userOriginalSelfie, generatedImage);
+             logger.success('ui', 'Composite image created');
+         } catch (e) {
+             console.error("Composite failed", e);
+         }
+      }
+
       setMessages(prev => [...prev, {
         role: 'model',
         text: '',
-        generatedImage: generatedImage,
-        isFinalImage: true // Treat as final
+        generatedImage: displayImage,
+        isFinalImage: true 
       }]);
 
     } catch (error: any) {
@@ -738,7 +875,6 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       if (!activePrompt) return;
       logger.info('ui', `Refining look: ${modifier}`);
       
-      // Map basic modifiers to technical prompt additions
       let modification = "";
       switch(modifier) {
           case 'regenerate': modification = "slight variation, consistent lighting"; break;
@@ -753,11 +889,15 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       }
 
       const newPrompt = `${activePrompt}, ${modification}`;
-      // We do NOT update activePrompt here immediately; we wait for the generation to succeed
       requestImageGeneration(newPrompt);
   };
 
   if (isCameraOpen) {
+    // Dynamic overlay color based on lighting
+    const overlayColor = lightingCondition === 'good' ? 'border-green-500/50' : 'border-red-500/50';
+    const textColor = lightingCondition === 'good' ? 'text-green-400' : 'text-red-400';
+    const statusText = lightingCondition === 'good' ? t.lightingGood : lightingCondition === 'dark' ? t.lightingDark : t.lightingBright;
+
     return (
       <div className="fixed inset-0 z-50 bg-black flex flex-col">
         <div className="relative flex-1 bg-black overflow-hidden">
@@ -770,14 +910,36 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
            />
            <canvas ref={canvasRef} className="hidden" />
            
+           {/* Face Alignment Overlay */}
            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-             <div className="w-64 h-80 border-2 border-white/50 rounded-[50%] box-content shadow-[0_0_0_9999px_rgba(0,0,0,0.7)]"></div>
-             <div className="absolute text-white/80 font-medium tracking-widest text-xs bottom-1/4">{t.alignFace}</div>
+             <div className={`w-64 h-80 border-2 ${overlayColor} rounded-[50%] box-content shadow-[0_0_0_9999px_rgba(0,0,0,0.85)] relative transition-colors duration-300`}>
+                {/* Eye Level Guide Line */}
+                <div className="absolute top-1/3 left-4 right-4 border-t border-dashed border-white/30 flex justify-between items-center">
+                    <div className="w-1 h-3 bg-white/50 -mt-1.5"></div>
+                    <div className="w-1 h-3 bg-white/50 -mt-1.5"></div>
+                </div>
+                <div className="absolute top-1/3 left-0 right-0 text-center -mt-6">
+                    <span className="text-[9px] uppercase tracking-widest text-white/50 bg-black/20 px-2 rounded">{t.alignEyes}</span>
+                </div>
+
+                {/* Corner Markers */}
+                <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white"></div>
+                <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-white"></div>
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-white"></div>
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-white"></div>
+             </div>
+             
+             <div className="absolute bottom-1/4 flex flex-col items-center gap-2">
+                 <div className={`text-sm font-bold tracking-widest uppercase ${textColor} bg-black/60 px-4 py-2 rounded backdrop-blur-sm transition-colors`}>
+                    {statusText}
+                 </div>
+                 <div className="text-white/50 text-[10px] tracking-widest">{t.alignFace}</div>
+             </div>
            </div>
 
            <button 
              onClick={stopCamera}
-             className="absolute top-6 right-6 text-white p-2 z-50"
+             className="absolute top-6 right-6 text-white p-2 z-50 hover:text-red-500 transition-colors"
            >
              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -788,9 +950,10 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         <div className="h-32 bg-black flex items-center justify-center gap-8">
            <button 
              onClick={captureImage}
-             className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center hover:bg-white/10 transition-colors"
+             disabled={lightingCondition !== 'good'}
+             className={`w-20 h-20 rounded-full border-4 flex items-center justify-center transition-all ${lightingCondition === 'good' ? 'border-white hover:bg-white/10' : 'border-red-900 opacity-50 cursor-not-allowed'}`}
            >
-             <div className="w-16 h-16 bg-white rounded-full"></div>
+             <div className={`w-16 h-16 rounded-full transition-colors ${lightingCondition === 'good' ? 'bg-white' : 'bg-red-900'}`}></div>
            </button>
         </div>
       </div>

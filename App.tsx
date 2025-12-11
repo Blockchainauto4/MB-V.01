@@ -45,7 +45,7 @@ const App: React.FC = () => {
   const isConsultation = activeTab === Tab.CONSULTATION;
 
   return (
-    <div className="min-h-[100dvh] bg-black text-white selection:bg-white selection:text-black overflow-hidden relative">
+    <div className="fixed inset-0 bg-black text-white selection:bg-white selection:text-black overflow-hidden flex flex-col items-center">
       {/* Top Header - Visible on all tabs except Consultation when started (handled internally) */}
       <div className="absolute top-0 left-0 w-full p-4 flex justify-center z-30 pointer-events-none">
         <div className="opacity-0"> 
@@ -53,7 +53,7 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-md mx-auto h-[100dvh] relative bg-black shadow-2xl overflow-hidden flex flex-col">
+      <div className="w-full max-w-md h-full relative bg-black shadow-2xl overflow-hidden flex flex-col border-x border-gray-900">
         
         {/* Top Branding Bar */}
         {activeTab !== Tab.LOGS && (
@@ -64,7 +64,7 @@ const App: React.FC = () => {
 
         {/* Main Content Area */}
         <main 
-          className={`flex-1 ${isConsultation ? 'overflow-hidden' : 'overflow-y-auto scrollbar-hide'}`}
+          className={`flex-1 w-full ${isConsultation ? 'overflow-hidden' : 'overflow-y-auto scrollbar-hide'}`}
         >
           {renderContent()}
         </main>
