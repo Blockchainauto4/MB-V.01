@@ -27,9 +27,6 @@ async function generateWithOpenRouterFlux(prompt: string, apiKey: string): Promi
       model: "black-forest-labs/flux-1-schnell",
       prompt: `Professional hair color preview. ${prompt}`,
       n: 1,
-      // OpenRouter standard image gen API often returns URL, but some providers support b64_json
-      // Let's request url and fetch it, or check provider docs. 
-      // Most Flux providers on OpenRouter act like OpenAI DALL-E 3.
     }),
   });
 
@@ -39,11 +36,9 @@ async function generateWithOpenRouterFlux(prompt: string, apiKey: string): Promi
   }
 
   const data = await response.json();
-  // Typically returns { data: [{ url: "..." }] }
   const url = data.data?.[0]?.url;
 
   if (url) {
-      // Fetch the URL to convert to base64 for consistency
       const imageRes = await fetch(url);
       const arrayBuffer = await imageRes.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -55,6 +50,41 @@ async function generateWithOpenRouterFlux(prompt: string, apiKey: string): Promi
   }
 
   throw new Error("No image URL or data returned from OpenRouter");
+}
+
+// Helper for SiliconFlow (Flux)
+async function generateWithSiliconFlowFlux(prompt: string, apiKey: string): Promise<string> {
+  const response = await fetch('https://api.siliconflow.cn/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: "black-forest-labs/FLUX.1-schnell", 
+      prompt: `Professional hair color preview. ${prompt}`,
+      n: 1,
+      image_size: "1024x1024" // SiliconFlow requires explicit size often
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || 'Failed to generate image with SiliconFlow Flux.');
+  }
+
+  const data = await response.json();
+  // SiliconFlow typically returns a URL in the data array
+  const url = data.data?.[0]?.url;
+
+  if (url) {
+      const imageRes = await fetch(url);
+      const arrayBuffer = await imageRes.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      return `data:image/jpeg;base64,${buffer.toString('base64')}`;
+  }
+
+  throw new Error("No image URL returned from SiliconFlow");
 }
 
 // Helper to generate image via OpenAI DALL-E 2
@@ -146,7 +176,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { prompt, apiKey, openRouterKey } = req.body;
+    const { prompt, apiKey, openRouterKey, siliconFlowKey } = req.body;
     if (!prompt) {
       return res.status(400).json({ error: 'Missing prompt in request body.' });
     }
@@ -166,7 +196,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
     }
 
-    // Priority 2: OpenRouter Flux (if key provided or admin key exists)
+    // Priority 2: OpenRouter Flux
     const activeOpenRouterKey = openRouterKey || process.env.ADMIN_OPENROUTER_KEY;
     if (activeOpenRouterKey) {
         try {
@@ -178,7 +208,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
     }
 
-    // Priority 3: Hugging Face
+    // Priority 3: SiliconFlow Flux
+    const activeSiliconFlowKey = siliconFlowKey || process.env.ADMIN_SILICONFLOW_KEY;
+    if (activeSiliconFlowKey) {
+        try {
+            console.log("Using SiliconFlow Flux for style generation");
+            generatedImage = await generateWithSiliconFlowFlux(prompt, activeSiliconFlowKey);
+            return res.status(200).json({ generatedImage });
+        } catch (siliconError) {
+             console.error("SiliconFlow generation failed:", siliconError);
+        }
+    }
+
+    // Priority 4: Hugging Face
     const hfToken = process.env.HUGGING_FACE_TOKEN;
     if (hfToken) {
       try {
@@ -190,7 +232,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Priority 4: Gemini (Fallback)
+    // Priority 5: Gemini (Fallback)
     console.log("Using Gemini for image generation");
     generatedImage = await generateWithGemini(prompt);
     

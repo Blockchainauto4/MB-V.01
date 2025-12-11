@@ -366,8 +366,9 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     logger.info('ui', 'User sent a message', { hasImage: !!userMsg.image });
 
     try {
-      // Check for OpenRouter key
+      // Check for Keys
       const openRouterKey = localStorage.getItem('openrouter_api_key');
+      const siliconFlowKey = localStorage.getItem('siliconflow_api_key');
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -377,7 +378,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
           image: userMsg.image,
           history: currentMessages.filter(m => m.role !== 'model' || m.text),
           language: language,
-          openRouterKey // Pass the key if present
+          openRouterKey, 
+          siliconFlowKey
         }),
       });
 
@@ -474,6 +476,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         // 1. Analyze
         logger.info('api', 'Starting face analysis');
         const openRouterKey = localStorage.getItem('openrouter_api_key');
+        const siliconFlowKey = localStorage.getItem('siliconflow_api_key');
         
         const response = await fetch('/api/analyze', {
           method: 'POST',
@@ -481,7 +484,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
           body: JSON.stringify({ 
               imageBase64, 
               language,
-              openRouterKey // Pass key
+              openRouterKey,
+              siliconFlowKey
           }), 
         });
 
@@ -522,14 +526,20 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         setLoadingText(t.projection + '...');
         logger.info('api', 'Requesting image generation');
         
-        // Get API key if available to use DALL-E 2 or OpenRouter Flux
+        // Get API key if available
         const apiKey = localStorage.getItem('openai_api_key');
         const openRouterKey = localStorage.getItem('openrouter_api_key');
+        const siliconFlowKey = localStorage.getItem('siliconflow_api_key');
 
         const genResponse = await fetch('/api/generate-style', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: prompt, apiKey: apiKey, openRouterKey: openRouterKey }),
+            body: JSON.stringify({ 
+                prompt: prompt, 
+                apiKey: apiKey, 
+                openRouterKey: openRouterKey,
+                siliconFlowKey: siliconFlowKey
+            }),
         });
 
         if(genResponse.ok) {
@@ -613,18 +623,24 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
     setLoading(true);
     setLoadingText(t.generatingFinal);
-    logger.info('api', 'Starting Standard finalization (DALL-E 2 / OpenRouter Flux)');
+    logger.info('api', 'Starting Standard finalization');
 
     try {
-      // Get API key for DALL-E 2
+      // Get API keys
       const apiKey = localStorage.getItem('openai_api_key');
       const openRouterKey = localStorage.getItem('openrouter_api_key');
+      const siliconFlowKey = localStorage.getItem('siliconflow_api_key');
 
       // Use standard generation endpoint for economy mode
       const response = await fetch('/api/generate-style', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: activePrompt, apiKey: apiKey, openRouterKey: openRouterKey }), 
+        body: JSON.stringify({ 
+            prompt: activePrompt, 
+            apiKey: apiKey, 
+            openRouterKey: openRouterKey,
+            siliconFlowKey: siliconFlowKey
+        }), 
       });
 
       if (!response.ok) throw new Error('Failed to generate standard final image.');

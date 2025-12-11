@@ -88,6 +88,76 @@ async function analyzeWithOpenRouter(
   }
 }
 
+// SiliconFlow Helper
+async function analyzeWithSiliconFlow(
+  siliconFlowKey: string,
+  imageBase64: string, // Full data URI
+  language: string
+): Promise<VisagismAnalysis> {
+  // Use Qwen2-VL for high quality vision analysis on SiliconFlow
+  // Note: Model name might need to be exact as per SiliconFlow docs, usually Qwen/Qwen2-VL-72B-Instruct
+  const model = "Qwen/Qwen2-VL-72B-Instruct"; 
+  const targetLang = LANGUAGE_NAMES[language] || 'English';
+
+  const prompt = `Analyze this face for a professional Visagismo consultation. Identify the face shape, skin tone, and suggest the best hair transformation. 
+  
+  Return ONLY a valid JSON object matching this structure:
+  {
+    "faceShape": "The shape of the face (e.g., Oval, Round, Square, Heart).",
+    "skinTone": "The skin tone and undertone (e.g., Fair Cool, Medium Warm, Deep Neutral).",
+    "eyeColor": "The detected eye color.",
+    "bestColors": ["Color Category 1", "Color Category 2", "Color Category 3"],
+    "hairSuggestion": "A specific hair color or cut suggestion.",
+    "reasoning": "Why this suggestion works based on Visagismo principles.",
+    "imageGenerationPrompt": "A highly detailed English prompt for an AI image generator to create a photorealistic portrait of this person with the suggested hairstyle. CRITICAL: You MUST describe the person's existing facial features (eye shape/color, nose shape, lip shape, skin texture, age, ethnicity) in extreme detail to ensure the generated face looks exactly like them. Do not change their facial features, only the hair."
+  }
+
+  IMPORTANT: All text fields (faceShape, skinTone, hairSuggestion, reasoning) MUST be in ${targetLang}. The 'imageGenerationPrompt' must remain in English.`;
+
+  const response = await fetch("https://api.siliconflow.cn/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${siliconFlowKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: imageBase64 } }
+          ]
+        }
+      ],
+      // SiliconFlow Qwen models generally follow instructions well, even without strict json_object mode
+      // However, we try to enforce via prompt.
+      max_tokens: 1024
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || "SiliconFlow analysis failed");
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) throw new Error("No analysis returned from SiliconFlow");
+
+  // Parse JSON
+  try {
+      // Find JSON if mixed with text (likely with Qwen)
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      const jsonStr = jsonMatch ? jsonMatch[0] : content;
+      return JSON.parse(jsonStr) as VisagismAnalysis;
+  } catch (e) {
+      console.error("JSON Parse Error SiliconFlow:", content);
+      throw new Error("Failed to parse SiliconFlow analysis JSON");
+  }
+}
+
 // This function runs on the server, keeping the API key secure.
 function getAiClient(): GoogleGenAI {
   if (!process.env.API_KEY) {
@@ -143,16 +213,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { imageBase64, language, openRouterKey } = req.body;
+    const { imageBase64, language, openRouterKey, siliconFlowKey } = req.body;
     if (!imageBase64) {
       return res.status(400).json({ error: 'Missing imageBase64 in request body.' });
     }
 
-    // Priority: OpenRouter
+    // Priority 1: OpenRouter
     const activeOpenRouterKey = openRouterKey || process.env.ADMIN_OPENROUTER_KEY;
     if (activeOpenRouterKey) {
         console.log("Using OpenRouter for analysis");
         const analysis = await analyzeWithOpenRouter(activeOpenRouterKey, imageBase64, language || 'en');
+        return res.status(200).json({ analysis });
+    }
+
+    // Priority 2: SiliconFlow
+    const activeSiliconFlowKey = siliconFlowKey || process.env.ADMIN_SILICONFLOW_KEY;
+    if (activeSiliconFlowKey) {
+        console.log("Using SiliconFlow for analysis");
+        const analysis = await analyzeWithSiliconFlow(activeSiliconFlowKey, imageBase64, language || 'en');
         return res.status(200).json({ analysis });
     }
 

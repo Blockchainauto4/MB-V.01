@@ -59,6 +59,44 @@ async function chatWithOpenRouter(
   return data.choices?.[0]?.message?.content || "";
 }
 
+// Helper for SiliconFlow
+async function chatWithSiliconFlow(
+  siliconFlowKey: string,
+  messages: any[],
+  systemInstruction: string
+): Promise<string> {
+  // Using DeepSeek-V3 on SiliconFlow as a powerful alternative
+  const model = "deepseek-ai/DeepSeek-V3"; 
+
+  const finalMessages = [
+    { role: "system", content: systemInstruction },
+    ...messages
+  ];
+
+  const response = await fetch("https://api.siliconflow.cn/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${siliconFlowKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: finalMessages,
+      temperature: 0.7,
+      max_tokens: 500,
+      stream: false
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || "SiliconFlow chat failed");
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content || "";
+}
+
 // This function runs on the server, keeping the API key secure.
 function getAiClient(): GoogleGenAI {
   if (!process.env.API_KEY) {
@@ -74,7 +112,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { message, history, language, image, openRouterKey } = req.body;
+    const { message, history, language, image, openRouterKey, siliconFlowKey } = req.body;
     
     // Validate that we have either text or image
     if (!message && !image) {
@@ -88,30 +126,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const targetLang = LANGUAGE_NAMES[language] || 'English';
     const dynamicInstruction = `${BASE_INSTRUCTION}\n\nIMPORTANT: You MUST respond in ${targetLang}.`;
     
-    // Priority: OpenRouter if key is present (user provided or admin env var)
-    const activeOpenRouterKey = openRouterKey || process.env.ADMIN_OPENROUTER_KEY;
-
-    if (activeOpenRouterKey) {
-        console.log("Using OpenRouter for chat");
-        // Convert history for OpenRouter (OpenAI format)
-        const openRouterMessages = history.map((msg: any) => ({
+    // Prepare standard messages format for alternatives
+    const standardMessages = history.map((msg: any) => ({
              role: msg.role === 'model' ? 'assistant' : 'user',
              content: msg.text
-        }));
+    }));
+    
+    // Add current message
+    let currentContent: any = message;
+    if (image) {
+         // Standard Vision format
+         currentContent = [
+             { type: "text", text: message || "Analyze this image." },
+             { type: "image_url", image_url: { url: image } }
+         ];
+    }
+    standardMessages.push({ role: 'user', content: currentContent });
 
-        // Add current message
-        let currentContent: any = message;
-        if (image) {
-             // OpenRouter Vision support
-             currentContent = [
-                 { type: "text", text: message || "Analyze this image." },
-                 { type: "image_url", image_url: { url: image } } // image is expected to be data:image/jpeg;base64,...
-             ];
-        }
+    // Priority 1: OpenRouter
+    const activeOpenRouterKey = openRouterKey || process.env.ADMIN_OPENROUTER_KEY;
+    if (activeOpenRouterKey) {
+        console.log("Using OpenRouter for chat");
+        const responseText = await chatWithOpenRouter(activeOpenRouterKey, standardMessages, dynamicInstruction);
+        return res.status(200).json({ responseText });
+    }
 
-        openRouterMessages.push({ role: 'user', content: currentContent });
-
-        const responseText = await chatWithOpenRouter(activeOpenRouterKey, openRouterMessages, dynamicInstruction);
+    // Priority 2: SiliconFlow
+    const activeSiliconFlowKey = siliconFlowKey || process.env.ADMIN_SILICONFLOW_KEY;
+    if (activeSiliconFlowKey && !image) { // DeepSeek-V3 typically text only via SiliconFlow chat endpoint, use fallback for images unless checking specific vision model
+        console.log("Using SiliconFlow for chat");
+        const responseText = await chatWithSiliconFlow(activeSiliconFlowKey, standardMessages, dynamicInstruction);
         return res.status(200).json({ responseText });
     }
 

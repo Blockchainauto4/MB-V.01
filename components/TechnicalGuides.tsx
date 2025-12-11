@@ -29,8 +29,11 @@ const TEXTS: Record<Language, {
   openaiDesc: string;
   openRouterTitle: string;
   openRouterDesc: string;
+  siliconFlowTitle: string;
+  siliconFlowDesc: string;
   apiKeyPlaceholder: string;
   openRouterPlaceholder: string;
+  siliconFlowPlaceholder: string;
   saveKey: string;
   clearKey: string;
   keySaved: string;
@@ -54,8 +57,11 @@ const TEXTS: Record<Language, {
     openaiDesc: "Save your OpenAI API key to generate high-quality final images.",
     openRouterTitle: "OpenRouter Integration",
     openRouterDesc: "Use OpenRouter to access various models (Gemini, Llama, Flux) avoiding direct quota limits.",
+    siliconFlowTitle: "SiliconFlow Integration",
+    siliconFlowDesc: "High-performance inference for DeepSeek, Qwen, and Flux models.",
     apiKeyPlaceholder: "Enter your OpenAI API Key...",
     openRouterPlaceholder: "Enter your OpenRouter API Key...",
+    siliconFlowPlaceholder: "Enter your SiliconFlow API Key...",
     saveKey: "Save Key",
     clearKey: "Clear Key",
     keySaved: "API Key saved!",
@@ -63,7 +69,7 @@ const TEXTS: Record<Language, {
     logsTitle: "System Logs",
     logsDesc: "View client-side application logs, errors, and API activity.",
     logsBtn: "Open Logs Dashboard",
-    adminNote: "Admin Tip: Add 'ADMIN_OPENAI_KEY' or 'ADMIN_OPENROUTER_KEY' to Vercel Env Vars for global access.",
+    adminNote: "Admin Tip: Add 'ADMIN_OPENAI_KEY', 'ADMIN_OPENROUTER_KEY', or 'ADMIN_SILICONFLOW_KEY' to Vercel Env Vars.",
   },
   pt: {
     title: "Guias Técnicos.",
@@ -79,8 +85,11 @@ const TEXTS: Record<Language, {
     openaiDesc: "Salve sua chave de API da OpenAI para gerar imagens finais de alta qualidade.",
     openRouterTitle: "Integração OpenRouter",
     openRouterDesc: "Use OpenRouter para acessar vários modelos (Gemini, Llama, Flux) evitando limites de cota.",
+    siliconFlowTitle: "Integração SiliconFlow",
+    siliconFlowDesc: "Inferência de alta performance para modelos DeepSeek, Qwen e Flux.",
     apiKeyPlaceholder: "Insira sua chave de API da OpenAI...",
     openRouterPlaceholder: "Insira sua chave OpenRouter...",
+    siliconFlowPlaceholder: "Insira sua chave SiliconFlow...",
     saveKey: "Salvar Chave",
     clearKey: "Limpar Chave",
     keySaved: "Chave de API salva!",
@@ -88,7 +97,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Logs do Sistema",
     logsDesc: "Visualize logs da aplicação, erros e atividade da API.",
     logsBtn: "Abrir Painel de Logs",
-    adminNote: "Dica Admin: Adicione 'ADMIN_OPENAI_KEY' ou 'ADMIN_OPENROUTER_KEY' no Vercel para acesso global.",
+    adminNote: "Dica Admin: Adicione chaves no Vercel para acesso global.",
   },
   es: {
     title: "Guías Técnicas.",
@@ -104,8 +113,11 @@ const TEXTS: Record<Language, {
     openaiDesc: "Guarda tu clave de API de OpenAI para generar imágenes finales de alta calidad.",
     openRouterTitle: "Integración OpenRouter",
     openRouterDesc: "Usa OpenRouter para acceder a varios modelos (Gemini, Llama, Flux) evitando límites de cuota.",
+    siliconFlowTitle: "Integración SiliconFlow",
+    siliconFlowDesc: "Inferencia de alto rendimiento para modelos DeepSeek, Qwen y Flux.",
     apiKeyPlaceholder: "Introduce tu clave de API de OpenAI...",
     openRouterPlaceholder: "Introduce tu clave de OpenRouter...",
+    siliconFlowPlaceholder: "Introduce tu clave de SiliconFlow...",
     saveKey: "Guardar Clave",
     clearKey: "Borrar Clave",
     keySaved: "¡Clave de API guardada!",
@@ -113,7 +125,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Registros del Sistema",
     logsDesc: "Ver registros de la aplicación, errores y actividad de API.",
     logsBtn: "Abrir Panel de Registros",
-    adminNote: "Tip Admin: Añade 'ADMIN_OPENAI_KEY' o 'ADMIN_OPENROUTER_KEY' a Vercel.",
+    adminNote: "Tip Admin: Añade chaves en Vercel para acceso global.",
   },
   de: {
     title: "Technische Anleitungen.",
@@ -129,8 +141,11 @@ const TEXTS: Record<Language, {
     openaiDesc: "Speichern Sie Ihren OpenAI API-Schlüssel, um hochwertige endgültige Bilder zu generieren.",
     openRouterTitle: "OpenRouter Integration",
     openRouterDesc: "Nutzen Sie OpenRouter für verschiedene Modelle (Gemini, Llama, Flux) um Quotenlimits zu umgehen.",
+    siliconFlowTitle: "SiliconFlow Integration",
+    siliconFlowDesc: "Hochleistungsinferenz für DeepSeek, Qwen und Flux Modelle.",
     apiKeyPlaceholder: "Geben Sie Ihren OpenAI API-Schlüssel ein...",
     openRouterPlaceholder: "Geben Sie Ihren OpenRouter Schlüssel ein...",
+    siliconFlowPlaceholder: "Geben Sie Ihren SiliconFlow Schlüssel ein...",
     saveKey: "Schlüssel Speichern",
     clearKey: "Schlüssel Löschen",
     keySaved: "API-Schlüssel gespeichert!",
@@ -138,7 +153,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Systemprotokolle",
     logsDesc: "Anwendungsprotokolle, Fehler und API-Aktivitäten anzeigen.",
     logsBtn: "Protokolle Öffnen",
-    adminNote: "Admin-Tipp: Fügen Sie 'ADMIN_OPENAI_KEY' oder 'ADMIN_OPENROUTER_KEY' in Vercel hinzu.",
+    adminNote: "Admin-Tipp: Fügen Sie Schlüssel in Vercel hinzu.",
   },
   fr: {
     title: "Guides Techniques.",
@@ -154,8 +169,11 @@ const TEXTS: Record<Language, {
     openaiDesc: "Enregistrez votre clé API OpenAI pour générer des images finales de haute qualité.",
     openRouterTitle: "Intégration OpenRouter",
     openRouterDesc: "Utilisez OpenRouter pour accéder à divers modèles (Gemini, Llama, Flux) en évitant les quotas.",
+    siliconFlowTitle: "Intégration SiliconFlow",
+    siliconFlowDesc: "Inférence haute performance pour les modèles DeepSeek, Qwen et Flux.",
     apiKeyPlaceholder: "Entrez votre clé API OpenAI...",
     openRouterPlaceholder: "Entrez votre clé OpenRouter...",
+    siliconFlowPlaceholder: "Entrez votre clé SiliconFlow...",
     saveKey: "Enregistrer la Clé",
     clearKey: "Effacer la Clé",
     keySaved: "Clé API enregistrée !",
@@ -163,7 +181,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Journaux Système",
     logsDesc: "Voir les journaux d'application, erreurs et activité API.",
     logsBtn: "Ouvrir le Tableau de Bord",
-    adminNote: "Astuce Admin : Ajoutez 'ADMIN_OPENAI_KEY' ou 'ADMIN_OPENROUTER_KEY' dans Vercel.",
+    adminNote: "Astuce Admin : Ajoutez des clés dans Vercel.",
   },
   it: {
     title: "Guide Tecniche.",
@@ -179,8 +197,11 @@ const TEXTS: Record<Language, {
     openaiDesc: "Salva la tua chiave API OpenAI per generare immagini finali di alta qualità.",
     openRouterTitle: "Integrazione OpenRouter",
     openRouterDesc: "Usa OpenRouter per accedere a vari modelli (Gemini, Llama, Flux) evitando limiti di quota.",
+    siliconFlowTitle: "Integrazione SiliconFlow",
+    siliconFlowDesc: "Inferenza ad alte prestazioni per modelli DeepSeek, Qwen e Flux.",
     apiKeyPlaceholder: "Inserisci la tua chiave API OpenAI...",
     openRouterPlaceholder: "Inserisci la tua chiave OpenRouter...",
+    siliconFlowPlaceholder: "Inserisci la tua chiave SiliconFlow...",
     saveKey: "Salva Chiave",
     clearKey: "Cancella Chiave",
     keySaved: "Chiave API salvata!",
@@ -188,7 +209,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Log di Sistema",
     logsDesc: "Visualizza log applicazione, errori e attività API.",
     logsBtn: "Apri Dashboard Log",
-    adminNote: "Suggerimento Admin: Aggiungi 'ADMIN_OPENAI_KEY' o 'ADMIN_OPENROUTER_KEY' su Vercel.",
+    adminNote: "Suggerimento Admin: Aggiungi le chiavi su Vercel.",
   }
 };
 
@@ -202,6 +223,8 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
     const [openAIStatus, setOpenAIStatus] = useState('');
     const [openRouterKey, setOpenRouterKey] = useState('');
     const [openRouterStatus, setOpenRouterStatus] = useState('');
+    const [siliconFlowKey, setSiliconFlowKey] = useState('');
+    const [siliconFlowStatus, setSiliconFlowStatus] = useState('');
 
     useEffect(() => {
         const savedOpenAI = localStorage.getItem('openai_api_key');
@@ -209,6 +232,9 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
 
         const savedOpenRouter = localStorage.getItem('openrouter_api_key');
         if (savedOpenRouter) setOpenRouterKey(savedOpenRouter);
+
+        const savedSiliconFlow = localStorage.getItem('siliconflow_api_key');
+        if (savedSiliconFlow) setSiliconFlowKey(savedSiliconFlow);
     }, []);
 
     // OpenAI Handlers
@@ -241,6 +267,22 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
         setOpenRouterStatus(t.keyCleared);
         logger.warn('auth', 'User cleared OpenRouter API Key.');
         setTimeout(() => setOpenRouterStatus(''), 2000);
+    };
+
+    // SiliconFlow Handlers
+    const handleSaveSiliconFlow = () => {
+        localStorage.setItem('siliconflow_api_key', siliconFlowKey);
+        setSiliconFlowStatus(t.keySaved);
+        logger.success('auth', 'User updated SiliconFlow API Key manually.');
+        setTimeout(() => setSiliconFlowStatus(''), 2000);
+    };
+
+    const handleClearSiliconFlow = () => {
+        localStorage.removeItem('siliconflow_api_key');
+        setSiliconFlowKey('');
+        setSiliconFlowStatus(t.keyCleared);
+        logger.warn('auth', 'User cleared SiliconFlow API Key.');
+        setTimeout(() => setSiliconFlowStatus(''), 2000);
     };
 
     const checkDbConnection = async () => {
@@ -325,7 +367,7 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
       </div>
 
       {/* OpenRouter Section */}
-      <div className="mb-12 border-t border-gray-800 pt-8">
+      <div className="mb-8 border-t border-gray-800 pt-8">
         <h2 className="text-2xl font-bold mb-2">{t.openRouterTitle}</h2>
         <p className="text-gray-400 mb-6 text-sm">{t.openRouterDesc}</p>
         <div className="flex flex-col gap-2">
@@ -351,6 +393,36 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
                 </button>
             </div>
             {openRouterStatus && <p className="text-green-500 text-xs mt-2">{openRouterStatus}</p>}
+        </div>
+      </div>
+
+      {/* SiliconFlow Section */}
+      <div className="mb-12 border-t border-gray-800 pt-8">
+        <h2 className="text-2xl font-bold mb-2">{t.siliconFlowTitle}</h2>
+        <p className="text-gray-400 mb-6 text-sm">{t.siliconFlowDesc}</p>
+        <div className="flex flex-col gap-2">
+            <input 
+                type="password"
+                value={siliconFlowKey}
+                onChange={(e) => setSiliconFlowKey(e.target.value)}
+                placeholder={t.siliconFlowPlaceholder}
+                className="bg-[#1a1a1a] border border-gray-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors w-full"
+            />
+            <div className="flex gap-2">
+                <button
+                    onClick={handleSaveSiliconFlow}
+                    className="flex-1 bg-white text-black font-bold uppercase py-3 px-6 text-xs tracking-wider hover:bg-gray-200 transition-colors"
+                >
+                    {t.saveKey}
+                </button>
+                <button
+                    onClick={handleClearSiliconFlow}
+                    className="flex-1 border border-gray-800 text-gray-400 font-bold uppercase py-3 px-6 text-xs tracking-wider hover:bg-gray-800 hover:text-white transition-colors"
+                >
+                    {t.clearKey}
+                </button>
+            </div>
+            {siliconFlowStatus && <p className="text-green-500 text-xs mt-2">{siliconFlowStatus}</p>}
             <p className="text-gray-600 text-[10px] mt-2 italic">{t.adminNote}</p>
         </div>
       </div>
