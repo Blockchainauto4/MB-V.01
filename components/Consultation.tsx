@@ -366,6 +366,9 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     logger.info('ui', 'User sent a message', { hasImage: !!userMsg.image });
 
     try {
+      // Check for OpenRouter key
+      const openRouterKey = localStorage.getItem('openrouter_api_key');
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -373,7 +376,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
           message: input,
           image: userMsg.image,
           history: currentMessages.filter(m => m.role !== 'model' || m.text),
-          language: language
+          language: language,
+          openRouterKey // Pass the key if present
         }),
       });
 
@@ -469,10 +473,16 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       try {
         // 1. Analyze
         logger.info('api', 'Starting face analysis');
+        const openRouterKey = localStorage.getItem('openrouter_api_key');
+        
         const response = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64, language }), 
+          body: JSON.stringify({ 
+              imageBase64, 
+              language,
+              openRouterKey // Pass key
+          }), 
         });
 
         if (!response.ok) {
@@ -511,10 +521,15 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         setLoading(true);
         setLoadingText(t.projection + '...');
         logger.info('api', 'Requesting image generation');
+        
+        // Get API key if available to use DALL-E 2 or OpenRouter Flux
+        const apiKey = localStorage.getItem('openai_api_key');
+        const openRouterKey = localStorage.getItem('openrouter_api_key');
+
         const genResponse = await fetch('/api/generate-style', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: prompt }),
+            body: JSON.stringify({ prompt: prompt, apiKey: apiKey, openRouterKey: openRouterKey }),
         });
 
         if(genResponse.ok) {
@@ -598,14 +613,18 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
     setLoading(true);
     setLoadingText(t.generatingFinal);
-    logger.info('api', 'Starting Standard finalization');
+    logger.info('api', 'Starting Standard finalization (DALL-E 2 / OpenRouter Flux)');
 
     try {
+      // Get API key for DALL-E 2
+      const apiKey = localStorage.getItem('openai_api_key');
+      const openRouterKey = localStorage.getItem('openrouter_api_key');
+
       // Use standard generation endpoint for economy mode
       const response = await fetch('/api/generate-style', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: activePrompt }), 
+        body: JSON.stringify({ prompt: activePrompt, apiKey: apiKey, openRouterKey: openRouterKey }), 
       });
 
       if (!response.ok) throw new Error('Failed to generate standard final image.');

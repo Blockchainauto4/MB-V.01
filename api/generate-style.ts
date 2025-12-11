@@ -13,6 +13,77 @@ function getAiClient(): GoogleGenAI {
   return new GoogleGenAI({ apiKey: process.env.API_KEY });
 }
 
+// Helper to generate image via OpenRouter (Flux)
+async function generateWithOpenRouterFlux(prompt: string, apiKey: string): Promise<string> {
+  const response = await fetch('https://openrouter.ai/api/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://beatrizbittencourt.vercel.app', 
+      'X-Title': 'Beatriz Bittencourt Visagismo'
+    },
+    body: JSON.stringify({
+      model: "black-forest-labs/flux-1-schnell",
+      prompt: `Professional hair color preview. ${prompt}`,
+      n: 1,
+      // OpenRouter standard image gen API often returns URL, but some providers support b64_json
+      // Let's request url and fetch it, or check provider docs. 
+      // Most Flux providers on OpenRouter act like OpenAI DALL-E 3.
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || 'Failed to generate image with OpenRouter Flux.');
+  }
+
+  const data = await response.json();
+  // Typically returns { data: [{ url: "..." }] }
+  const url = data.data?.[0]?.url;
+
+  if (url) {
+      // Fetch the URL to convert to base64 for consistency
+      const imageRes = await fetch(url);
+      const arrayBuffer = await imageRes.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      return `data:image/jpeg;base64,${buffer.toString('base64')}`;
+  } 
+  
+  if (data.data?.[0]?.b64_json) {
+       return `data:image/png;base64,${data.data[0].b64_json}`;
+  }
+
+  throw new Error("No image URL or data returned from OpenRouter");
+}
+
+// Helper to generate image via OpenAI DALL-E 2
+async function generateWithOpenAI(prompt: string, apiKey: string): Promise<string> {
+  const response = await fetch('https://api.openai.com/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "dall-e-2",
+      prompt: `Professional hair color preview. ${prompt}`,
+      n: 1,
+      size: "512x512", // Faster and cheaper for previews
+      response_format: 'b64_json',
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || 'Failed to generate image with DALL-E 2.');
+  }
+
+  const data = await response.json();
+  const imageB64 = data.data[0].b64_json;
+  return `data:image/png;base64,${imageB64}`;
+}
+
 // Helper to generate image via Hugging Face
 async function generateWithHuggingFace(prompt: string, token: string): Promise<string> {
   const response = await fetch(
@@ -75,29 +146,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { prompt } = req.body;
+    const { prompt, apiKey, openRouterKey } = req.body;
     if (!prompt) {
       return res.status(400).json({ error: 'Missing prompt in request body.' });
     }
 
     let generatedImage: string;
-    const hfToken = process.env.HUGGING_FACE_TOKEN;
+    
+    // Priority 1: OpenAI DALL-E 2 (if key provided or admin key exists)
+    const openAIKeyToUse = apiKey || process.env.ADMIN_OPENAI_KEY;
 
-    // Logic: Try Hugging Face first if token exists, otherwise fallback to Gemini
+    if (openAIKeyToUse) {
+        try {
+            console.log("Using OpenAI DALL-E 2 for style generation");
+            generatedImage = await generateWithOpenAI(prompt, openAIKeyToUse);
+            return res.status(200).json({ generatedImage });
+        } catch (openAIError) {
+             console.error("OpenAI generation failed:", openAIError);
+        }
+    }
+
+    // Priority 2: OpenRouter Flux (if key provided or admin key exists)
+    const activeOpenRouterKey = openRouterKey || process.env.ADMIN_OPENROUTER_KEY;
+    if (activeOpenRouterKey) {
+        try {
+            console.log("Using OpenRouter Flux for style generation");
+            generatedImage = await generateWithOpenRouterFlux(prompt, activeOpenRouterKey);
+            return res.status(200).json({ generatedImage });
+        } catch (openRouterError) {
+             console.error("OpenRouter generation failed:", openRouterError);
+        }
+    }
+
+    // Priority 3: Hugging Face
+    const hfToken = process.env.HUGGING_FACE_TOKEN;
     if (hfToken) {
       try {
         console.log(`Generating with Hugging Face model: ${HF_MODEL}`);
         generatedImage = await generateWithHuggingFace(prompt, hfToken);
+        return res.status(200).json({ generatedImage });
       } catch (hfError) {
         console.error("Hugging Face generation failed, falling back to Gemini:", hfError);
-        // Fallback to Gemini if HF fails (e.g., rate limit or model loading)
-        generatedImage = await generateWithGemini(prompt);
       }
-    } else {
-      console.log("Using Gemini for image generation");
-      generatedImage = await generateWithGemini(prompt);
     }
 
+    // Priority 4: Gemini (Fallback)
+    console.log("Using Gemini for image generation");
+    generatedImage = await generateWithGemini(prompt);
+    
     res.status(200).json({ generatedImage });
 
   } catch (error: any) {

@@ -21,6 +21,44 @@ Your goal is to provide a personal hair color consultation based on the client's
 6. Keep responses short (under 100 words) to fit a mobile chat interface.
 `;
 
+// Helper for OpenRouter
+async function chatWithOpenRouter(
+  openRouterKey: string,
+  messages: any[],
+  systemInstruction: string
+): Promise<string> {
+  const model = "google/gemini-2.0-flash-001"; 
+
+  const finalMessages = [
+    { role: "system", content: systemInstruction },
+    ...messages
+  ];
+
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${openRouterKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://beatrizbittencourt.vercel.app", 
+      "X-Title": "Beatriz Bittencourt Visagismo"
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: finalMessages,
+      temperature: 0.7,
+      max_tokens: 500
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || "OpenRouter chat failed");
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content || "";
+}
+
 // This function runs on the server, keeping the API key secure.
 function getAiClient(): GoogleGenAI {
   if (!process.env.API_KEY) {
@@ -36,7 +74,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { message, history, language, image } = req.body;
+    const { message, history, language, image, openRouterKey } = req.body;
     
     // Validate that we have either text or image
     if (!message && !image) {
@@ -49,7 +87,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Determine Language
     const targetLang = LANGUAGE_NAMES[language] || 'English';
     const dynamicInstruction = `${BASE_INSTRUCTION}\n\nIMPORTANT: You MUST respond in ${targetLang}.`;
+    
+    // Priority: OpenRouter if key is present (user provided or admin env var)
+    const activeOpenRouterKey = openRouterKey || process.env.ADMIN_OPENROUTER_KEY;
 
+    if (activeOpenRouterKey) {
+        console.log("Using OpenRouter for chat");
+        // Convert history for OpenRouter (OpenAI format)
+        const openRouterMessages = history.map((msg: any) => ({
+             role: msg.role === 'model' ? 'assistant' : 'user',
+             content: msg.text
+        }));
+
+        // Add current message
+        let currentContent: any = message;
+        if (image) {
+             // OpenRouter Vision support
+             currentContent = [
+                 { type: "text", text: message || "Analyze this image." },
+                 { type: "image_url", image_url: { url: image } } // image is expected to be data:image/jpeg;base64,...
+             ];
+        }
+
+        openRouterMessages.push({ role: 'user', content: currentContent });
+
+        const responseText = await chatWithOpenRouter(activeOpenRouterKey, openRouterMessages, dynamicInstruction);
+        return res.status(200).json({ responseText });
+    }
+
+    // Fallback: Direct Gemini
+    console.log("Using Gemini for chat");
     const client = getAiClient();
     const chatSession = client.chats.create({
       model: 'gemini-2.5-flash',

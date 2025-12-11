@@ -27,7 +27,10 @@ const TEXTS: Record<Language, {
   whatsapp: string;
   openaiTitle: string;
   openaiDesc: string;
+  openRouterTitle: string;
+  openRouterDesc: string;
   apiKeyPlaceholder: string;
+  openRouterPlaceholder: string;
   saveKey: string;
   clearKey: string;
   keySaved: string;
@@ -48,8 +51,11 @@ const TEXTS: Record<Language, {
     buyBtn: "Buy Online",
     whatsapp: "Order via WhatsApp: (11) 99227-9655",
     openaiTitle: "OpenAI DALL·E 2 Integration",
-    openaiDesc: "Save your OpenAI API key to generate high-quality final images. Your key is stored securely in your browser.",
+    openaiDesc: "Save your OpenAI API key to generate high-quality final images.",
+    openRouterTitle: "OpenRouter Integration",
+    openRouterDesc: "Use OpenRouter to access various models (Gemini, Llama, Flux) avoiding direct quota limits.",
     apiKeyPlaceholder: "Enter your OpenAI API Key...",
+    openRouterPlaceholder: "Enter your OpenRouter API Key...",
     saveKey: "Save Key",
     clearKey: "Clear Key",
     keySaved: "API Key saved!",
@@ -57,7 +63,7 @@ const TEXTS: Record<Language, {
     logsTitle: "System Logs",
     logsDesc: "View client-side application logs, errors, and API activity.",
     logsBtn: "Open Logs Dashboard",
-    adminNote: "Admin Tip: To enable this feature for ALL users (Service Mode), add 'ADMIN_OPENAI_KEY' to your Vercel Environment Variables.",
+    adminNote: "Admin Tip: Add 'ADMIN_OPENAI_KEY' or 'ADMIN_OPENROUTER_KEY' to Vercel Env Vars for global access.",
   },
   pt: {
     title: "Guias Técnicos.",
@@ -70,8 +76,11 @@ const TEXTS: Record<Language, {
     buyBtn: "Comprar Online",
     whatsapp: "Peça via WhatsApp: (11) 99227-9655",
     openaiTitle: "Integração OpenAI DALL·E 2",
-    openaiDesc: "Salve sua chave de API da OpenAI para gerar imagens finais de alta qualidade. Sua chave é armazenada com segurança no seu navegador.",
+    openaiDesc: "Salve sua chave de API da OpenAI para gerar imagens finais de alta qualidade.",
+    openRouterTitle: "Integração OpenRouter",
+    openRouterDesc: "Use OpenRouter para acessar vários modelos (Gemini, Llama, Flux) evitando limites de cota.",
     apiKeyPlaceholder: "Insira sua chave de API da OpenAI...",
+    openRouterPlaceholder: "Insira sua chave OpenRouter...",
     saveKey: "Salvar Chave",
     clearKey: "Limpar Chave",
     keySaved: "Chave de API salva!",
@@ -79,7 +88,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Logs do Sistema",
     logsDesc: "Visualize logs da aplicação, erros e atividade da API.",
     logsBtn: "Abrir Painel de Logs",
-    adminNote: "Dica Admin: Para ativar este recurso para TODOS (Modo Serviço), adicione 'ADMIN_OPENAI_KEY' nas Variáveis de Ambiente do Vercel.",
+    adminNote: "Dica Admin: Adicione 'ADMIN_OPENAI_KEY' ou 'ADMIN_OPENROUTER_KEY' no Vercel para acesso global.",
   },
   es: {
     title: "Guías Técnicas.",
@@ -92,8 +101,11 @@ const TEXTS: Record<Language, {
     buyBtn: "Comprar en Línea",
     whatsapp: "Pedir por WhatsApp: (11) 99227-9655",
     openaiTitle: "Integración con OpenAI DALL·E 2",
-    openaiDesc: "Guarda tu clave de API de OpenAI para generar imágenes finales de alta calidad. Tu clave se almacena de forma segura en tu navegador.",
+    openaiDesc: "Guarda tu clave de API de OpenAI para generar imágenes finales de alta calidad.",
+    openRouterTitle: "Integración OpenRouter",
+    openRouterDesc: "Usa OpenRouter para acceder a varios modelos (Gemini, Llama, Flux) evitando límites de cuota.",
     apiKeyPlaceholder: "Introduce tu clave de API de OpenAI...",
+    openRouterPlaceholder: "Introduce tu clave de OpenRouter...",
     saveKey: "Guardar Clave",
     clearKey: "Borrar Clave",
     keySaved: "¡Clave de API guardada!",
@@ -101,7 +113,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Registros del Sistema",
     logsDesc: "Ver registros de la aplicación, errores y actividad de API.",
     logsBtn: "Abrir Panel de Registros",
-    adminNote: "Tip Admin: Para activar esto para TODOS (Modo Servicio), añade 'ADMIN_OPENAI_KEY' a tus Variables de Entorno en Vercel.",
+    adminNote: "Tip Admin: Añade 'ADMIN_OPENAI_KEY' o 'ADMIN_OPENROUTER_KEY' a Vercel.",
   },
   de: {
     title: "Technische Anleitungen.",
@@ -114,8 +126,11 @@ const TEXTS: Record<Language, {
     buyBtn: "Online Kaufen",
     whatsapp: "Bestellung per WhatsApp: (11) 99227-9655",
     openaiTitle: "OpenAI DALL·E 2 Integration",
-    openaiDesc: "Speichern Sie Ihren OpenAI API-Schlüssel, um hochwertige endgültige Bilder zu generieren. Ihr Schlüssel wird sicher in Ihrem Browser gespeichert.",
+    openaiDesc: "Speichern Sie Ihren OpenAI API-Schlüssel, um hochwertige endgültige Bilder zu generieren.",
+    openRouterTitle: "OpenRouter Integration",
+    openRouterDesc: "Nutzen Sie OpenRouter für verschiedene Modelle (Gemini, Llama, Flux) um Quotenlimits zu umgehen.",
     apiKeyPlaceholder: "Geben Sie Ihren OpenAI API-Schlüssel ein...",
+    openRouterPlaceholder: "Geben Sie Ihren OpenRouter Schlüssel ein...",
     saveKey: "Schlüssel Speichern",
     clearKey: "Schlüssel Löschen",
     keySaved: "API-Schlüssel gespeichert!",
@@ -123,7 +138,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Systemprotokolle",
     logsDesc: "Anwendungsprotokolle, Fehler und API-Aktivitäten anzeigen.",
     logsBtn: "Protokolle Öffnen",
-    adminNote: "Admin-Tipp: Um dies für ALLE Benutzer zu aktivieren (Service-Modus), fügen Sie 'ADMIN_OPENAI_KEY' in Vercel hinzu.",
+    adminNote: "Admin-Tipp: Fügen Sie 'ADMIN_OPENAI_KEY' oder 'ADMIN_OPENROUTER_KEY' in Vercel hinzu.",
   },
   fr: {
     title: "Guides Techniques.",
@@ -136,8 +151,11 @@ const TEXTS: Record<Language, {
     buyBtn: "Acheter en Ligne",
     whatsapp: "Commander via WhatsApp: (11) 99227-9655",
     openaiTitle: "Intégration OpenAI DALL·E 2",
-    openaiDesc: "Enregistrez votre clé API OpenAI pour générer des images finales de haute qualité. Votre clé est stockée en toute sécurité dans votre navigateur.",
+    openaiDesc: "Enregistrez votre clé API OpenAI pour générer des images finales de haute qualité.",
+    openRouterTitle: "Intégration OpenRouter",
+    openRouterDesc: "Utilisez OpenRouter pour accéder à divers modèles (Gemini, Llama, Flux) en évitant les quotas.",
     apiKeyPlaceholder: "Entrez votre clé API OpenAI...",
+    openRouterPlaceholder: "Entrez votre clé OpenRouter...",
     saveKey: "Enregistrer la Clé",
     clearKey: "Effacer la Clé",
     keySaved: "Clé API enregistrée !",
@@ -145,7 +163,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Journaux Système",
     logsDesc: "Voir les journaux d'application, erreurs et activité API.",
     logsBtn: "Ouvrir le Tableau de Bord",
-    adminNote: "Astuce Admin : Pour activer pour TOUS (Mode Service), ajoutez 'ADMIN_OPENAI_KEY' dans Vercel.",
+    adminNote: "Astuce Admin : Ajoutez 'ADMIN_OPENAI_KEY' ou 'ADMIN_OPENROUTER_KEY' dans Vercel.",
   },
   it: {
     title: "Guide Tecniche.",
@@ -158,8 +176,11 @@ const TEXTS: Record<Language, {
     buyBtn: "Acquista Online",
     whatsapp: "Ordina via WhatsApp: (11) 99227-9655",
     openaiTitle: "Integrazione OpenAI DALL·E 2",
-    openaiDesc: "Salva la tua chiave API OpenAI per generare immagini finali di alta qualità. La tua chiave è memorizzata in modo sicuro nel tuo browser.",
+    openaiDesc: "Salva la tua chiave API OpenAI per generare immagini finali di alta qualità.",
+    openRouterTitle: "Integrazione OpenRouter",
+    openRouterDesc: "Usa OpenRouter per accedere a vari modelli (Gemini, Llama, Flux) evitando limiti di quota.",
     apiKeyPlaceholder: "Inserisci la tua chiave API OpenAI...",
+    openRouterPlaceholder: "Inserisci la tua chiave OpenRouter...",
     saveKey: "Salva Chiave",
     clearKey: "Cancella Chiave",
     keySaved: "Chiave API salvata!",
@@ -167,7 +188,7 @@ const TEXTS: Record<Language, {
     logsTitle: "Log di Sistema",
     logsDesc: "Visualizza log applicazione, errori e attività API.",
     logsBtn: "Apri Dashboard Log",
-    adminNote: "Suggerimento Admin: Per abilitare per TUTTI (Modo Servizio), aggiungi 'ADMIN_OPENAI_KEY' su Vercel.",
+    adminNote: "Suggerimento Admin: Aggiungi 'ADMIN_OPENAI_KEY' o 'ADMIN_OPENROUTER_KEY' su Vercel.",
   }
 };
 
@@ -175,29 +196,51 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
     const t = TEXTS[language];
     const [dbStatus, setDbStatus] = useState<string | null>(null);
     const [isCheckingDb, setIsCheckingDb] = useState(false);
+    
+    // API Keys State
     const [openAIKey, setOpenAIKey] = useState('');
-    const [keyStatus, setKeyStatus] = useState('');
+    const [openAIStatus, setOpenAIStatus] = useState('');
+    const [openRouterKey, setOpenRouterKey] = useState('');
+    const [openRouterStatus, setOpenRouterStatus] = useState('');
 
     useEffect(() => {
-        const savedKey = localStorage.getItem('openai_api_key');
-        if (savedKey) {
-            setOpenAIKey(savedKey);
-        }
+        const savedOpenAI = localStorage.getItem('openai_api_key');
+        if (savedOpenAI) setOpenAIKey(savedOpenAI);
+
+        const savedOpenRouter = localStorage.getItem('openrouter_api_key');
+        if (savedOpenRouter) setOpenRouterKey(savedOpenRouter);
     }, []);
 
-    const handleSaveKey = () => {
+    // OpenAI Handlers
+    const handleSaveOpenAI = () => {
         localStorage.setItem('openai_api_key', openAIKey);
-        setKeyStatus(t.keySaved);
+        setOpenAIStatus(t.keySaved);
         logger.success('auth', 'User updated OpenAI API Key manually.');
-        setTimeout(() => setKeyStatus(''), 2000);
+        setTimeout(() => setOpenAIStatus(''), 2000);
     };
 
-    const handleClearKey = () => {
+    const handleClearOpenAI = () => {
         localStorage.removeItem('openai_api_key');
         setOpenAIKey('');
-        setKeyStatus(t.keyCleared);
+        setOpenAIStatus(t.keyCleared);
         logger.warn('auth', 'User cleared OpenAI API Key.');
-        setTimeout(() => setKeyStatus(''), 2000);
+        setTimeout(() => setOpenAIStatus(''), 2000);
+    };
+
+    // OpenRouter Handlers
+    const handleSaveOpenRouter = () => {
+        localStorage.setItem('openrouter_api_key', openRouterKey);
+        setOpenRouterStatus(t.keySaved);
+        logger.success('auth', 'User updated OpenRouter API Key manually.');
+        setTimeout(() => setOpenRouterStatus(''), 2000);
+    };
+
+    const handleClearOpenRouter = () => {
+        localStorage.removeItem('openrouter_api_key');
+        setOpenRouterKey('');
+        setOpenRouterStatus(t.keyCleared);
+        logger.warn('auth', 'User cleared OpenRouter API Key.');
+        setTimeout(() => setOpenRouterStatus(''), 2000);
     };
 
     const checkDbConnection = async () => {
@@ -251,7 +294,8 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
         </button>
       </div>
       
-      <div className="mb-12">
+      {/* OpenAI Section */}
+      <div className="mb-8">
         <h2 className="text-2xl font-bold mb-2">{t.openaiTitle}</h2>
         <p className="text-gray-400 mb-6 text-sm">{t.openaiDesc}</p>
         <div className="flex flex-col gap-2">
@@ -264,19 +308,49 @@ export const TechnicalGuides: React.FC<TechnicalGuidesProps> = ({ language, onNa
             />
             <div className="flex gap-2">
                 <button
-                    onClick={handleSaveKey}
+                    onClick={handleSaveOpenAI}
                     className="flex-1 bg-white text-black font-bold uppercase py-3 px-6 text-xs tracking-wider hover:bg-gray-200 transition-colors"
                 >
                     {t.saveKey}
                 </button>
                 <button
-                    onClick={handleClearKey}
+                    onClick={handleClearOpenAI}
                     className="flex-1 border border-gray-800 text-gray-400 font-bold uppercase py-3 px-6 text-xs tracking-wider hover:bg-gray-800 hover:text-white transition-colors"
                 >
                     {t.clearKey}
                 </button>
             </div>
-            {keyStatus && <p className="text-green-500 text-xs mt-2">{keyStatus}</p>}
+            {openAIStatus && <p className="text-green-500 text-xs mt-2">{openAIStatus}</p>}
+        </div>
+      </div>
+
+      {/* OpenRouter Section */}
+      <div className="mb-12 border-t border-gray-800 pt-8">
+        <h2 className="text-2xl font-bold mb-2">{t.openRouterTitle}</h2>
+        <p className="text-gray-400 mb-6 text-sm">{t.openRouterDesc}</p>
+        <div className="flex flex-col gap-2">
+            <input 
+                type="password"
+                value={openRouterKey}
+                onChange={(e) => setOpenRouterKey(e.target.value)}
+                placeholder={t.openRouterPlaceholder}
+                className="bg-[#1a1a1a] border border-gray-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors w-full"
+            />
+            <div className="flex gap-2">
+                <button
+                    onClick={handleSaveOpenRouter}
+                    className="flex-1 bg-white text-black font-bold uppercase py-3 px-6 text-xs tracking-wider hover:bg-gray-200 transition-colors"
+                >
+                    {t.saveKey}
+                </button>
+                <button
+                    onClick={handleClearOpenRouter}
+                    className="flex-1 border border-gray-800 text-gray-400 font-bold uppercase py-3 px-6 text-xs tracking-wider hover:bg-gray-800 hover:text-white transition-colors"
+                >
+                    {t.clearKey}
+                </button>
+            </div>
+            {openRouterStatus && <p className="text-green-500 text-xs mt-2">{openRouterStatus}</p>}
             <p className="text-gray-600 text-[10px] mt-2 italic">{t.adminNote}</p>
         </div>
       </div>
