@@ -1,5 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+// Allow up to 60 seconds for DALL-E 3 generation (standard Vercel timeout is 10s)
+export const config = {
+  maxDuration: 60,
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -19,18 +24,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!keyToUse) {
       return res.status(401).json({ 
         error: 'No API Key available.', 
-        details: 'System is missing API Key configuration.' 
+        details: 'System is missing API Key configuration. Please add it in the Guides tab.' 
       });
     }
 
     // Call OpenAI DALL-E 3 API
-    // DALL-E 3 does not support 'edits' (inpainting) via API yet, so we use Generation with a highly specific prompt.
-    // This is the most reliable way to use "Only OpenAI" to get a high quality result.
+    console.log("Sending request to OpenAI DALL-E 3...");
     const response = await fetch('https://api.openai.com/v1/images/generations', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${keyToUse}`
+            'Authorization': `Bearer ${keyToUse.trim()}`
         },
         body: JSON.stringify({
             model: "dall-e-3",
@@ -43,23 +47,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        console.error('OpenAI Error:', errorData);
-        throw new Error(errorData.error?.message || 'OpenAI API Error');
+        let errorMsg = 'OpenAI API Error';
+        try {
+            const errorData = await response.json();
+            console.error('OpenAI Error Details:', JSON.stringify(errorData));
+            errorMsg = errorData.error?.message || errorData.error?.code || errorMsg;
+        } catch (e) {
+            const text = await response.text();
+            console.error('OpenAI Error Text:', text);
+            errorMsg = `OpenAI returned ${response.status}: ${text.substring(0, 100)}`;
+        }
+        throw new Error(errorMsg);
     }
 
     const data = await response.json();
     
     if (!data.data || !data.data[0] || !data.data[0].b64_json) {
-        throw new Error("Invalid response format from OpenAI.");
+        console.error("Invalid OpenAI response format:", data);
+        throw new Error("Invalid response format from OpenAI (No image data).");
     }
 
     const finalImage = `data:image/png;base64,${data.data[0].b64_json}`;
+    console.log("Image successfully generated.");
 
     res.status(200).json({ finalImage });
 
   } catch (error: any) {
     console.error('API Error in /api/generate-final-image:', error);
-    res.status(500).json({ error: 'Failed to generate the final image.', details: error.message });
+    res.status(500).json({ 
+        error: 'Failed to generate image.', 
+        details: error.message || 'Unknown server error' 
+    });
   }
 }

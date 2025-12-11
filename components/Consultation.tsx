@@ -63,7 +63,7 @@ const TEXTS: Record<Language, {
     finalize: "Generate Final Look",
     finalImage: "Final Image",
     generatingFinal: "Generating with DALL-E 3...",
-    errorFinal: "Failed to generate the final image.",
+    errorFinal: "Failed to generate image: ",
     noApiKey: "Service Mode not active. Please add your OpenAI Key in Guides.",
   },
   pt: {
@@ -92,7 +92,7 @@ const TEXTS: Record<Language, {
     finalize: "Gerar Visual Final",
     finalImage: "Imagem Final",
     generatingFinal: "Gerando com DALL-E 3...",
-    errorFinal: "Falha ao gerar a imagem final.",
+    errorFinal: "Falha ao gerar imagem: ",
     noApiKey: "Modo Serviço inativo. Adicione sua chave OpenAI em Guias.",
   },
   es: {
@@ -121,7 +121,7 @@ const TEXTS: Record<Language, {
     finalize: "Generar Look Final",
     finalImage: "Imagen Final",
     generatingFinal: "Generando con DALL-E 3...",
-    errorFinal: "Error al generar la imagen final.",
+    errorFinal: "Error al generar imagen: ",
     noApiKey: "Modo Servicio inactivo. Añade tu clave OpenAI en Guías.",
   },
   de: {
@@ -150,7 +150,7 @@ const TEXTS: Record<Language, {
     finalize: "Finalen Look Generieren",
     finalImage: "Endgültiges Bild",
     generatingFinal: "Generieren mit DALL-E 3...",
-    errorFinal: "Fehler beim Generieren des endgültigen Bildes.",
+    errorFinal: "Fehler beim Generieren: ",
     noApiKey: "Service-Modus inaktiv. Fügen Sie Ihren OpenAI-Schlüssel in Guides hinzu.",
   },
   fr: {
@@ -179,7 +179,7 @@ const TEXTS: Record<Language, {
     finalize: "Générer Look Final",
     finalImage: "Image Finale",
     generatingFinal: "Génération avec DALL-E 3...",
-    errorFinal: "Échec de la génération de l'image finale.",
+    errorFinal: "Erreur de génération: ",
     noApiKey: "Mode Service inactif. Ajoutez votre clé OpenAI dans Guides.",
   },
   it: {
@@ -208,7 +208,7 @@ const TEXTS: Record<Language, {
     finalize: "Genera Look Finale",
     finalImage: "Immagine Finale",
     generatingFinal: "Generazione con DALL-E 3...",
-    errorFinal: "Impossibile generare l'immagine finale.",
+    errorFinal: "Errore generazione: ",
     noApiKey: "Modalità Servizio inattiva. Aggiungi la tua chiave OpenAI in Guide.",
   }
 };
@@ -434,7 +434,10 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
           return;
       }
 
-      if (!response.ok) throw new Error('Failed to generate final image.');
+      if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.details || errData.error || 'Unknown Error');
+      }
       
       const { finalImage } = await response.json();
       logger.success('api', 'OpenAI image generated');
@@ -448,7 +451,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     } catch (error: any) {
       console.error("Generation Error:", error);
       logger.error('api', 'Generation failed', error.message);
-      setMessages(prev => [...prev, { role: 'model', text: t.errorFinal }]);
+      // Display specific error to user
+      setMessages(prev => [...prev, { role: 'model', text: `${t.errorFinal}${error.message}` }]);
     } finally {
       setLoading(false);
       setLoadingText('');
