@@ -75,8 +75,8 @@ const TEXTS: Record<Language, {
     shorter: "Shorter",
     longer: "Longer",
     refine: "Refine Look",
-    finalize: "Finalize (DALL·E 2)",
-    finalizeStandard: "Finalize (Standard)",
+    finalize: "Generate HD Portrait",
+    finalizeStandard: "Fast Preview",
     finalImage: "Final Image",
     generatingFinal: "Generating final image...",
     errorFinal: "Failed to generate the final image.",
@@ -112,8 +112,8 @@ const TEXTS: Record<Language, {
     shorter: "Mais Curto",
     longer: "Mais Longo",
     refine: "Refinar Visual",
-    finalize: "Finalizar (DALL·E 2)",
-    finalizeStandard: "Finalizar (Padrão)",
+    finalize: "Gerar Foto HD",
+    finalizeStandard: "Prévia Rápida",
     finalImage: "Imagem Final",
     generatingFinal: "Gerando imagem final...",
     errorFinal: "Falha ao gerar a imagem final.",
@@ -149,8 +149,8 @@ const TEXTS: Record<Language, {
     shorter: "Más Corto",
     longer: "Más Largo",
     refine: "Refinar Look",
-    finalize: "Finalizar (DALL·E 2)",
-    finalizeStandard: "Finalizar (Estándar)",
+    finalize: "Generar Foto HD",
+    finalizeStandard: "Vista Rápida",
     finalImage: "Imagen Final",
     generatingFinal: "Generando imagen final...",
     errorFinal: "Error al generar la imagen final.",
@@ -186,8 +186,8 @@ const TEXTS: Record<Language, {
     shorter: "Kürzer",
     longer: "Länger",
     refine: "Verfeinern",
-    finalize: "Fertigstellen (DALL·E 2)",
-    finalizeStandard: "Fertigstellen (Standard)",
+    finalize: "HD-Porträt",
+    finalizeStandard: "Schnellvorschau",
     finalImage: "Endgültiges Bild",
     generatingFinal: "Endgültiges Bild wird generiert...",
     errorFinal: "Fehler beim Generieren des endgültigen Bildes.",
@@ -223,8 +223,8 @@ const TEXTS: Record<Language, {
     shorter: "Plus Court",
     longer: "Plus Long",
     refine: "Affiner",
-    finalize: "Finaliser (DALL·E 2)",
-    finalizeStandard: "Finaliser (Standard)",
+    finalize: "Portrait HD",
+    finalizeStandard: "Aperçu Rapide",
     finalImage: "Image Finale",
     generatingFinal: "Génération de l'image finale...",
     errorFinal: "Échec de la génération de l'image finale.",
@@ -260,8 +260,8 @@ const TEXTS: Record<Language, {
     shorter: "Più Corto",
     longer: "Più Lungo",
     refine: "Raffina",
-    finalize: "Finalizza (DALL·E 2)",
-    finalizeStandard: "Finalizza (Standard)",
+    finalize: "Ritratto HD",
+    finalizeStandard: "Anteprima Veloce",
     finalImage: "Immagine Finale",
     generatingFinal: "Generazione immagine finale...",
     errorFinal: "Impossibile generare l'immagine finale.",
@@ -535,7 +535,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
     setLoading(true);
     setLoadingText(t.generatingFinal);
-    logger.info('api', 'Starting DALL-E 2 finalization');
+    logger.info('api', 'Starting DALL-E 3 finalization');
 
     try {
       const response = await fetch('/api/generate-final-image', {
@@ -554,7 +554,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       if (!response.ok) throw new Error('Failed to generate final image.');
       
       const { finalImage } = await response.json();
-      logger.success('api', 'DALL-E 2 image generated');
+      logger.success('api', 'DALL-E 3 image generated');
       setMessages(prev => [...prev, {
         role: 'model',
         text: '',
@@ -563,8 +563,8 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
       }]);
 
     } catch (error: any) {
-      console.error("DALL-E 2 Error:", error);
-      logger.error('api', 'DALL-E 2 generation failed', error.message);
+      console.error("DALL-E 3 Error:", error);
+      logger.error('api', 'DALL-E 3 generation failed', error.message);
       setMessages(prev => [...prev, { role: 'model', text: t.errorFinal }]);
     } finally {
       setLoading(false);
@@ -784,6 +784,18 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
                           className="w-full h-auto cursor-pointer" 
                           onClick={() => !msg.isFinalImage && handleGallerySelect(msg.originalPrompt || "", msg.generatedImage!)}
                       />
+                      {msg.isFinalImage && (
+                        <a 
+                          href={msg.generatedImage}
+                          download={`Beatriz_Bittencourt_Style_${Date.now()}.png`}
+                          className="absolute bottom-3 right-3 bg-white/10 hover:bg-white/90 text-white hover:text-black p-2 rounded-full backdrop-blur-md transition-all duration-300 opacity-0 group-hover:opacity-100 z-20"
+                          title="Download High Resolution"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M12 12.75l-7.5-7.5M12 12.75l7.5-7.5M12 12.75V3" />
+                          </svg>
+                        </a>
+                      )}
                   </div>
                </div>
             )}
