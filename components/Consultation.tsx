@@ -505,7 +505,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
             </div>
         </div>
         
-        <PreviewGallery images={generatedHistory} onSelect={(prompt, src) => { setActivePrompt(prompt); }} selectedImageSrc={null} />
+        <PreviewGallery images={generatedHistory} onSelect={(prompt) => { setActivePrompt(prompt); }} selectedImageSrc={null} />
 
       <div className="flex-1 overflow-y-auto px-4 space-y-6 pt-4">
         {messages.map((msg, index) => (
