@@ -39,10 +39,10 @@ const TEXTS: Record<Language, {
   longer: string;
   refine: string;
   finalize: string;
+  finalizeStandard: string;
   finalImage: string;
   generatingFinal: string;
   errorFinal: string;
-  errorStyleGeneration: string;
   noApiKey: string;
 }> = {
   en: {
@@ -75,11 +75,11 @@ const TEXTS: Record<Language, {
     shorter: "Shorter",
     longer: "Longer",
     refine: "Refine Look",
-    finalize: "Generate Final Look",
+    finalize: "Generate HD Portrait",
+    finalizeStandard: "Fast Preview",
     finalImage: "Final Image",
     generatingFinal: "Generating final image...",
     errorFinal: "Failed to generate the final image.",
-    errorStyleGeneration: "Could not generate preview image. Please use 'Regenerate' to try again.",
     noApiKey: "Service Mode not active. Please add your own Key in Guides, or contact Admin.",
   },
   pt: {
@@ -112,11 +112,11 @@ const TEXTS: Record<Language, {
     shorter: "Mais Curto",
     longer: "Mais Longo",
     refine: "Refinar Visual",
-    finalize: "Gerar Resultado Final",
+    finalize: "Gerar Foto HD",
+    finalizeStandard: "Prévia Rápida",
     finalImage: "Imagem Final",
     generatingFinal: "Gerando imagem final...",
     errorFinal: "Falha ao gerar a imagem final.",
-    errorStyleGeneration: "Não foi possível gerar a imagem de prévia. Por favor, use 'Regenerar' para tentar novamente.",
     noApiKey: "Modo Serviço inativo. Adicione sua chave em Guias ou contate o Admin.",
   },
   es: {
@@ -149,11 +149,11 @@ const TEXTS: Record<Language, {
     shorter: "Más Corto",
     longer: "Más Largo",
     refine: "Refinar Look",
-    finalize: "Generar Resultado Final",
+    finalize: "Generar Foto HD",
+    finalizeStandard: "Vista Rápida",
     finalImage: "Imagen Final",
     generatingFinal: "Generando imagen final...",
     errorFinal: "Error al generar la imagen final.",
-    errorStyleGeneration: "No se pudo generar la imagen de vista previa. Usa 'Regenerar' para intentar de nuevo.",
     noApiKey: "Modo Servicio inactivo. Añade tu clave en Guías o contacta al Admin.",
   },
   de: {
@@ -186,11 +186,11 @@ const TEXTS: Record<Language, {
     shorter: "Kürzer",
     longer: "Länger",
     refine: "Verfeinern",
-    finalize: "Endergebnis Generieren",
+    finalize: "HD-Porträt",
+    finalizeStandard: "Schnellvorschau",
     finalImage: "Endgültiges Bild",
     generatingFinal: "Endgültiges Bild wird generiert...",
     errorFinal: "Fehler beim Generieren des endgültigen Bildes.",
-    errorStyleGeneration: "Vorschaubild konnte nicht generiert werden. Bitte versuchen Sie 'Regenerieren'.",
     noApiKey: "Service-Modus inaktiv. Fügen Sie Ihren Schlüssel in Guides hinzu.",
   },
   fr: {
@@ -223,11 +223,11 @@ const TEXTS: Record<Language, {
     shorter: "Plus Court",
     longer: "Plus Long",
     refine: "Affiner",
-    finalize: "Générer Résultat Final",
+    finalize: "Portrait HD",
+    finalizeStandard: "Aperçu Rapide",
     finalImage: "Image Finale",
     generatingFinal: "Génération de l'image finale...",
     errorFinal: "Échec de la génération de l'image finale.",
-    errorStyleGeneration: "Impossible de générer l'image d'aperçu. Veuillez utiliser 'Régénérer'.",
     noApiKey: "Mode Service inactif. Ajoutez votre clé dans Guides ou contactez l'Admin.",
   },
   it: {
@@ -260,11 +260,11 @@ const TEXTS: Record<Language, {
     shorter: "Più Corto",
     longer: "Più Lungo",
     refine: "Raffina",
-    finalize: "Genera Risultato Finale",
+    finalize: "Ritratto HD",
+    finalizeStandard: "Anteprima Veloce",
     finalImage: "Immagine Finale",
     generatingFinal: "Generazione immagine finale...",
     errorFinal: "Impossibile generare l'immagine finale.",
-    errorStyleGeneration: "Impossibile generare l'immagine di anteprima. Usa 'Rigenera' per riprovare.",
     noApiKey: "Modalità Servizio inattiva. Aggiungi la tua chiave in Guide.",
   }
 };
@@ -520,7 +520,7 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
         // Display visible error in chat so user knows regeneration is needed
         setMessages(prev => [...prev, { 
             role: 'model', 
-            text: t.errorStyleGeneration 
+            text: "Could not generate preview image. Please use 'Regenerate' to try again." 
         }]);
     } finally {
         setLoading(false);
@@ -528,58 +528,79 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
     }
   };
 
-  const handleUnifiedFinalize = async () => {
+  const handleFinalize = async () => {
     // Check local storage OR proceed if admin key might be configured on server
-    const apiKey = localStorage.getItem('hq_api_key') || localStorage.getItem('openai_api_key');
+    const apiKey = localStorage.getItem('openai_api_key');
     if (!activePrompt) return;
 
     setLoading(true);
     setLoadingText(t.generatingFinal);
-    logger.info('api', 'Starting Finalization (Unified)');
+    logger.info('api', 'Starting DALL-E 3 finalization');
 
     try {
-      // 1. Try High Quality Generation first
       const response = await fetch('/api/generate-final-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: activePrompt, apiKey: apiKey }), // apiKey can be null
       });
 
-      if (response.ok) {
-        // Success with HQ
-        const { finalImage } = await response.json();
-        logger.success('api', 'HQ image generated');
-        setMessages(prev => [...prev, {
-            role: 'model',
-            text: '',
-            generatedImage: finalImage,
-            isFinalImage: true
-        }]);
-      } else {
-        // 2. Fallback to Standard/Economy Generation
-        logger.warn('api', `HQ generation unavailable (${response.status}), attempting fallback.`);
-        
-        const fallbackResponse = await fetch('/api/generate-style', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: activePrompt }), 
-        });
-
-        if (!fallbackResponse.ok) throw new Error('Failed to generate final image (fallback also failed).');
-
-        const { generatedImage } = await fallbackResponse.json();
-        logger.success('api', 'Standard finalization successful (Fallback)');
-        setMessages(prev => [...prev, {
-            role: 'model',
-            text: '',
-            generatedImage: generatedImage,
-            isFinalImage: true
-        }]);
+      if (response.status === 401) {
+          alert(t.noApiKey);
+          setLoading(false);
+          setLoadingText('');
+          return;
       }
 
+      if (!response.ok) throw new Error('Failed to generate final image.');
+      
+      const { finalImage } = await response.json();
+      logger.success('api', 'DALL-E 3 image generated');
+      setMessages(prev => [...prev, {
+        role: 'model',
+        text: '',
+        generatedImage: finalImage,
+        isFinalImage: true
+      }]);
+
     } catch (error: any) {
-      console.error("Finalize Error:", error);
-      logger.error('api', 'Finalization failed', error.message);
+      console.error("DALL-E 3 Error:", error);
+      logger.error('api', 'DALL-E 3 generation failed', error.message);
+      setMessages(prev => [...prev, { role: 'model', text: t.errorFinal }]);
+    } finally {
+      setLoading(false);
+      setLoadingText('');
+    }
+  };
+
+  const handleFinalizeEconomy = async () => {
+    if (!activePrompt) return;
+
+    setLoading(true);
+    setLoadingText(t.generatingFinal);
+    logger.info('api', 'Starting Standard finalization');
+
+    try {
+      // Use standard generation endpoint for economy mode
+      const response = await fetch('/api/generate-style', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: activePrompt }), 
+      });
+
+      if (!response.ok) throw new Error('Failed to generate standard final image.');
+
+      const { generatedImage } = await response.json();
+      logger.success('api', 'Standard finalization successful');
+      setMessages(prev => [...prev, {
+        role: 'model',
+        text: '',
+        generatedImage: generatedImage,
+        isFinalImage: true // Treat as final
+      }]);
+
+    } catch (error: any) {
+      console.error("Standard Finalize Error:", error);
+      logger.error('api', 'Standard finalization failed', error.message);
       setMessages(prev => [...prev, { role: 'model', text: t.errorFinal }]);
     } finally {
       setLoading(false);
@@ -823,10 +844,16 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
                         <button onClick={() => handleRefine('longer')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.longer}</button>
                     </div>
                 </div>
-                <div className="w-full">
+                <div className="flex gap-2">
                     <button 
-                      onClick={handleUnifiedFinalize}
-                      className="w-full text-[10px] font-bold uppercase bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 hover:opacity-90 transition-opacity"
+                      onClick={handleFinalizeEconomy}
+                      className="flex-1 text-[10px] font-bold uppercase bg-gray-800 border border-gray-700 text-white py-3 hover:bg-gray-700 transition-colors"
+                    >
+                        {t.finalizeStandard}
+                    </button>
+                    <button 
+                      onClick={handleFinalize}
+                      className="flex-1 text-[10px] font-bold uppercase bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 hover:opacity-90 transition-opacity"
                     >
                         {t.finalize}
                     </button>
