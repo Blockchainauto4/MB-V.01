@@ -6,7 +6,6 @@ export interface ChatMessage {
   analysis?: VisagismAnalysis; // Structured analysis data
   generatedImage?: string; // URL or Base64 of the generated style preview
   originalPrompt?: string; // The prompt used to create the generatedImage (for history/refining)
-  isFinalImage?: boolean; // To distinguish high-quality DALL-E 2 images
 }
 
 export interface VisagismAnalysis {
@@ -39,8 +38,7 @@ export enum Tab {
   CONSULTATION = 'Consultation',
   EXPLORE = 'Explore',
   CATALOGUE = 'Catalogue',
-  WEDDING = 'Bridal',
-  LOGS = 'SystemLogs'
+  WEDDING = 'Bridal'
 }
 
 export type Language = 'en' | 'pt' | 'es' | 'de' | 'fr' | 'it';

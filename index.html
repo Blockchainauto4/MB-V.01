@@ -32,73 +32,19 @@
       .hair-id-bold {
         font-weight: 800;
       }
-
-      /* --- Modern Animations --- */
-      @keyframes slideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      
-      @keyframes slowZoom {
-        from { transform: scale(1); }
-        to { transform: scale(1.1); }
-      }
-
-      @keyframes messageIn {
-        from { opacity: 0; transform: translateY(10px) scale(0.98); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-      }
-
-      @keyframes blurIn {
-        from { opacity: 0; filter: blur(10px); }
-        to { opacity: 1; filter: blur(0); }
-      }
-
-      @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-      }
-
-      .animate-slide-up {
-        animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        opacity: 0; /* Start hidden */
-      }
-      
-      .animate-slow-zoom {
-        animation: slowZoom 20s ease-out infinite alternate;
-      }
-
-      .animate-message-in {
-        animation: messageIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
-
-      .animate-blur-in {
-        animation: blurIn 1.2s ease-out forwards;
-      }
-      
-      .delay-100 { animation-delay: 100ms; }
-      .delay-200 { animation-delay: 200ms; }
-      .delay-300 { animation-delay: 300ms; }
-      .delay-500 { animation-delay: 500ms; }
-
-      .shimmer-effect {
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-        background-size: 200% 100%;
-        animation: shimmer 3s infinite linear;
-      }
     </style>
-<script type="importmap">
+  <script type="importmap">
 {
   "imports": {
-    "react/": "https://esm.sh/react@^19.2.1/",
-    "react": "https://esm.sh/react@^19.2.1",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
-    "vite": "https://esm.sh/vite@^7.2.7",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "@vercel/node": "https://esm.sh/@vercel/node@^5.5.15",
-    "pg": "https://esm.sh/pg@^8.16.3",
-    "@google/genai": "https://esm.sh/@google/genai@^1.32.0",
-    "buffer": "https://esm.sh/buffer@^6.0.3"
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "@vercel/node": "https://aistudiocdn.com/@vercel/node@^5.5.15",
+    "vite": "https://aistudiocdn.com/vite@^7.2.7",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.2",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.32.0",
+    "pg": "https://aistudiocdn.com/pg@^8.16.3",
+    "buffer": "https://aistudiocdn.com/buffer@^6.0.3"
   }
 }
 </script>

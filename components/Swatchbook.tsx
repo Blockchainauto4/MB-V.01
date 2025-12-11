@@ -68,37 +68,33 @@ export const Swatchbook: React.FC<SwatchbookProps> = ({ language }) => {
   const t = TEXTS[language];
 
   return (
-    <div className="pb-24 pt-8 px-4">
-      <div className="mb-8 animate-slide-up">
+    <div className="pb-24 pt-8 px-4 animate-fade-in">
+      <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">{t.title}</h1>
         <p className="text-gray-400 text-lg">{t.subtitle}</p>
       </div>
 
-      <div className="relative mb-12 animate-slide-up delay-100">
+      <div className="relative mb-12">
         <button className="bg-white text-black font-bold uppercase py-4 px-8 text-sm tracking-wider hover:bg-gray-200 transition-colors">
           {t.exploreBtn}
         </button>
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1 relative animate-blur-in">
-        {SWATCHES.map((swatch, index) => (
-          <div 
-            key={swatch.id} 
-            className="relative group cursor-pointer aspect-square animate-slide-up"
-            style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
-          >
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1 relative">
+        {SWATCHES.map((swatch) => (
+          <div key={swatch.id} className="relative group cursor-pointer aspect-square">
             <div 
-              className="w-full h-full shadow-inner transition-transform duration-500 group-hover:scale-95"
+              className="w-full h-full shadow-inner transition-transform duration-300 group-hover:scale-95"
               style={{ backgroundColor: swatch.color }}
             />
-            <div className="absolute bottom-1 left-1 text-[10px] font-mono text-white/80 bg-black/20 px-1 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute bottom-1 left-1 text-[10px] font-mono text-white/80 bg-black/20 px-1 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
               {swatch.code}
             </div>
           </div>
         ))}
 
         {/* Floating Virtual Try On Badge */}
-        <div className="absolute right-4 bottom-10 md:right-10 md:bottom-20 z-10 animate-slide-up delay-500">
+        <div className="absolute right-4 bottom-10 md:right-10 md:bottom-20 z-10">
           <div className="relative w-32 h-32 animate-spin-slow">
             <svg viewBox="0 0 100 100" className="w-full h-full">
               <defs>
