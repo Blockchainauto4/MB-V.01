@@ -37,6 +37,9 @@ const TEXTS: Record<Language, {
   darker: string;
   shorter: string;
   longer: string;
+  bangs: string;
+  wavy: string;
+  straight: string;
   refine: string;
   finalize: string;
   finalImage: string;
@@ -74,6 +77,9 @@ const TEXTS: Record<Language, {
     darker: "Darker",
     shorter: "Shorter",
     longer: "Longer",
+    bangs: "Bangs",
+    wavy: "Wavy",
+    straight: "Straight",
     refine: "Refine Look",
     finalize: "Generate Final Look",
     finalImage: "Final Image",
@@ -111,6 +117,9 @@ const TEXTS: Record<Language, {
     darker: "Mais Escuro",
     shorter: "Mais Curto",
     longer: "Mais Longo",
+    bangs: "Franja",
+    wavy: "Ondulado",
+    straight: "Liso",
     refine: "Refinar Visual",
     finalize: "Gerar Resultado Final",
     finalImage: "Imagem Final",
@@ -148,6 +157,9 @@ const TEXTS: Record<Language, {
     darker: "Más Oscuro",
     shorter: "Más Corto",
     longer: "Más Largo",
+    bangs: "Flequillo",
+    wavy: "Ondulado",
+    straight: "Liso",
     refine: "Refinar Look",
     finalize: "Generar Resultado Final",
     finalImage: "Imagen Final",
@@ -185,6 +197,9 @@ const TEXTS: Record<Language, {
     darker: "Dunkler",
     shorter: "Kürzer",
     longer: "Länger",
+    bangs: "Pony",
+    wavy: "Wellig",
+    straight: "Glatt",
     refine: "Verfeinern",
     finalize: "Endergebnis Generieren",
     finalImage: "Endgültiges Bild",
@@ -222,6 +237,9 @@ const TEXTS: Record<Language, {
     darker: "Plus Foncé",
     shorter: "Plus Court",
     longer: "Plus Long",
+    bangs: "Frange",
+    wavy: "Ondulé",
+    straight: "Lisse",
     refine: "Affiner",
     finalize: "Générer Résultat Final",
     finalImage: "Image Finale",
@@ -259,6 +277,9 @@ const TEXTS: Record<Language, {
     darker: "Più Scuro",
     shorter: "Più Corto",
     longer: "Più Lungo",
+    bangs: "Frangia",
+    wavy: "Mosso",
+    straight: "Liscio",
     refine: "Raffina",
     finalize: "Genera Risultato Finale",
     finalImage: "Immagine Finale",
@@ -599,6 +620,9 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
           case 'darker': modification = "darker hair color depth, richer tone"; break;
           case 'shorter': modification = "slightly shorter hair length, modern cut"; break;
           case 'longer': modification = "slightly longer hair length, extensions look"; break;
+          case 'bangs': modification = "with bangs/fringe styling"; break;
+          case 'wavy': modification = "wavy textured hair styling"; break;
+          case 'straight': modification = "straight sleek hair styling"; break;
           default: modification = "";
       }
 
@@ -812,18 +836,30 @@ export const Consultation: React.FC<ConsultationProps> = ({ language }) => {
 
         {/* Refinement Controls - Fixed at bottom above input */}
         {activePrompt && !loading && (
-            <div className="bg-[#0a0a0a] p-3 border-t border-gray-900 mx-4 mb-2 space-y-2 animate-slide-up">
+            <div className="bg-[#0a0a0a] p-3 border-t border-gray-900 mx-4 mb-2 space-y-3 animate-slide-up">
+                {/* Adjustments Section */}
                 <div>
-                    <div className="text-[9px] text-gray-500 uppercase tracking-widest text-center mb-2">{t.refine}: {t.variations}</div>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                        <button onClick={() => handleRefine('regenerate')} className="col-span-2 md:col-span-1 text-[9px] font-bold uppercase border border-gray-700 bg-gray-900 text-white py-2 hover:bg-white hover:text-black transition-colors">{t.regenerate}</button>
+                    <div className="text-[9px] text-gray-500 uppercase tracking-widest text-center mb-2">{t.refine}</div>
+                    <div className="grid grid-cols-4 gap-2">
                         <button onClick={() => handleRefine('lighter')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.lighter}</button>
                         <button onClick={() => handleRefine('darker')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.darker}</button>
                         <button onClick={() => handleRefine('shorter')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.shorter}</button>
                         <button onClick={() => handleRefine('longer')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.longer}</button>
                     </div>
                 </div>
-                <div className="w-full">
+
+                {/* Variations Section */}
+                <div>
+                    <div className="text-[9px] text-gray-500 uppercase tracking-widest text-center mb-2">{t.variations}</div>
+                    <div className="grid grid-cols-4 gap-2">
+                         <button onClick={() => handleRefine('regenerate')} className="text-[9px] font-bold uppercase border border-gray-700 bg-gray-900 text-white py-2 hover:bg-white hover:text-black transition-colors">{t.regenerate}</button>
+                         <button onClick={() => handleRefine('bangs')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.bangs}</button>
+                         <button onClick={() => handleRefine('wavy')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.wavy}</button>
+                         <button onClick={() => handleRefine('straight')} className="text-[9px] uppercase border border-gray-800 text-gray-400 py-2 hover:bg-gray-800 hover:text-white transition-colors">{t.straight}</button>
+                    </div>
+                </div>
+
+                <div className="w-full pt-1">
                     <button 
                       onClick={handleUnifiedFinalize}
                       className="w-full text-[10px] font-bold uppercase bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 hover:opacity-90 transition-opacity"
