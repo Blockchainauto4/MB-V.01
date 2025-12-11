@@ -25,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Upgraded to DALL-E 3 for "Fiel Copy" (High Fidelity)
+    // Using DALL-E 2 as requested
     const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
@@ -33,12 +33,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         'Authorization': `Bearer ${keyToUse}`,
       },
       body: JSON.stringify({
-        model: "dall-e-3", 
-        prompt: `Professional portrait photography. ${prompt}`,
+        model: "dall-e-2", 
+        prompt: `Professional portrait photography, 8k resolution, photorealistic. ${prompt}`,
         n: 1,
         size: "1024x1024",
-        quality: "hd", // High Definition for better facial details
-        style: "natural", // Natural style to avoid "AI cartoon" look
+        // DALL-E 2 does not support 'quality' or 'style' params
         response_format: 'b64_json',
       }),
     });
@@ -46,7 +45,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!openaiResponse.ok) {
         const errorData = await openaiResponse.json();
         console.error('OpenAI API Error:', errorData);
-        throw new Error(errorData.error?.message || 'Failed to generate image with DALL-E 3.');
+        throw new Error(errorData.error?.message || 'Failed to generate image with DALL-E 2.');
     }
 
     const data = await openaiResponse.json();
